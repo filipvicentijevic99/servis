@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Servis
 
-## Getting Started
+Platforma za rezervaciju tenis terena: pronađi klub, rezerviši termin i nađi partnera za meč.
 
-First, run the development server:
+> Live demo: _uskoro_ · Status: u razvoju
+
+## Funkcionalnosti
+
+- Pretraga klubova po gradu, podlozi i ceni
+- Kalendar slobodnih termina i rezervacija bez preklapanja
+- Moje rezervacije sa otkazivanjem do 24 h pre termina
+- Otvoreni mečevi: objavi termin kome fali partner ili se priključi tuđem
+- Dashboard za vlasnike klubova: tereni, radno vreme, zauzetost i prihod
+- Email potvrde, responsive dizajn, svetla i tamna tema
+
+## Stack
+
+Next.js 16 · TypeScript · Tailwind CSS · shadcn/ui · PostgreSQL (Neon) · Prisma · Better Auth · Zod · Vercel
+
+## Pokretanje lokalno
+
+Potrebno: Node.js 22+ i besplatna baza na [Neon](https://neon.com).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/<username>/servis.git
+cd servis
+npm install
+cp .env.example .env          # Windows: copy .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+U `.env` upiši `DATABASE_URL` i `BETTER_AUTH_SECRET` (`npx auth@latest secret`), pa:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx prisma migrate dev
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Aplikacija radi na http://localhost:3000.
 
-## Learn More
+## Skripte
 
-To learn more about Next.js, take a look at the following resources:
+| Komanda | Šta radi |
+| --- | --- |
+| `npm run dev` | Lokalni server |
+| `npm run build` | Produkcioni build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript provera |
+| `npx prisma studio` | Pregled baze u browseru |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Kako radimo
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Svaki task je GitHub issue na [Project board-u](../../projects). Rad ide na posebnoj grani, kroz pull request i code review, a `main` je zaštićen. Detalji su u [CLAUDE.md](CLAUDE.md).
 
-## Deploy on Vercel
+## Kako smo koristili AI
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+_Popunjava se na kraju projekta: šta je radio AI (Claude Code), a šta mi._
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tim
+
+- [<Ime Prezime>](https://github.com/<username>): arhitektura, backend, code review
+- [Tijana](https://github.com/tijana333): frontend, UI
