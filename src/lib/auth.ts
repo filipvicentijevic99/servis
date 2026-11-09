@@ -52,7 +52,8 @@ export const auth = betterAuth({
       update: {
         // Uloga se ne menja kroz javni API za izmenu profila.
         before: async (data) => {
-          const { role: _ignored, ...rest } = data as Record<string, unknown>;
+          const rest: Record<string, unknown> = { ...data };
+          delete rest.role;
           return { data: rest };
         },
       },
