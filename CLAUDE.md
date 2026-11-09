@@ -9,6 +9,7 @@ Full-stack aplikacija: klubovi objavljuju terene i radno vreme, igrači rezervi�
 - Next.js 16 (App Router, `src/` folder), TypeScript strict, React 19
 - Tailwind CSS + shadcn/ui (`src/components/ui`), ikone iz `lucide-react`
 - PostgreSQL (Neon) + Prisma 7: šema u `prisma/schema.prisma`, klijent se generiše u `src/generated/prisma`
+- Promenljive okruženja su u `.env.local` (ne commit-uje se); spisak je u `.env.example`
 - Better Auth (email/lozinka + Google), uloge `PLAYER` i `CLUB_OWNER`
 - Zod 4 za validaciju, React Hook Form za forme
 - date-fns za datume, Recharts (preko shadcn `chart`) za grafikone
@@ -17,7 +18,7 @@ Full-stack aplikacija: klubovi objavljuju terene i radno vreme, igrači rezervi�
 
 - `npm run dev`: lokalni server na http://localhost:3000
 - `npm run lint`, `npm run typecheck`: moraju da prođu pre svakog commit-a
-- `npx prisma migrate dev --name <ime>`: nova migracija posle izmene šeme
+- `npx prisma migrate dev --name <ime>` pa `npx prisma generate`: posle izmene šeme (Prisma 7 ne generiše klijent sam posle migracije)
 - `npx prisma studio`: pregled baze
 
 ## Struktura
