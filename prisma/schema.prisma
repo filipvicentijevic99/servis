@@ -1,0 +1,200 @@
+// Prisma 7: URL baze se ne piše ovde nego u prisma.config.ts.
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enumi ────────────────────────────────────────────────
+
+enum Role {
+  PLAYER
+  CLUB_OWNER
+}
+
+enum Surface {
+  CLAY // šljaka
+  HARD // beton
+  GRASS // trava
+  CARPET // tepih
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+enum MatchType {
+  SINGLES
+  DOUBLES
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+// ─── Better Auth modeli ───────────────────────────────────
+// Imena polja i tabela moraju da ostanu ovakva, jer ih Better Auth tako očekuje.
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+
+  // naša polja
+  role                Role               @default(PLAYER)
+  clubs               Club[]
+  bookings            Booking[]
+  matchParticipations MatchParticipant[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// ─── Domen aplikacije ─────────────────────────────────────
+
+model Club {
+  id          String         @id @default(cuid())
+  name        String
+  slug        String         @unique
+  description String?
+  city        String
+  address     String
+  phone       String?
+  images      String[]
+  ownerId     String
+  owner       User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  courts      Court[]
+  openingHours OpeningHours[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([city])
+  @@index([ownerId])
+}
+
+model Court {
+  id           String    @id @default(cuid())
+  name         String
+  surface      Surface
+  indoor       Boolean   @default(false)
+  pricePerHour Int // u dinarima
+  isActive     Boolean   @default(true)
+  clubId       String
+  club         Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  bookings     Booking[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([clubId])
+}
+
+model OpeningHours {
+  id        String @id @default(cuid())
+  clubId    String
+  club      Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  dayOfWeek Int // 0 = nedelja ... 6 = subota
+  openTime  String // "08:00"
+  closeTime String // "22:00"
+
+  @@unique([clubId, dayOfWeek])
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  courtId    String
+  court      Court         @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startsAt   DateTime
+  endsAt     DateTime
+  status     BookingStatus @default(CONFIRMED)
+  totalPrice Int // u dinarima
+  openMatch  OpenMatch?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([courtId, startsAt])
+  @@index([userId])
+}
+
+model OpenMatch {
+  id           String             @id @default(cuid())
+  bookingId    String             @unique
+  booking      Booking            @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  type         MatchType
+  level        SkillLevel
+  note         String?
+  participants MatchParticipant[]
+  createdAt    DateTime           @default(now())
+}
+
+model MatchParticipant {
+  id       String    @id @default(cuid())
+  matchId  String
+  match    OpenMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt DateTime  @default(now())
+
+  @@unique([matchId, userId])
+}
