@@ -23,7 +23,7 @@ Full-stack app: clubs publish their courts and opening hours, players book slots
 ## Commands
 
 - `npm run dev`: dev server at http://localhost:3000
-- `npm run lint`, `npm run typecheck`, `npm run format`: run before every commit
+- `npm run lint`, `npm run typecheck`, `npm test`, `npm run format`: run before every commit
 - `npx prisma migrate dev --name <name>`, then `npx prisma generate`: after changing the schema (Prisma 7 does not regenerate the client after a migration)
 - `npm run db:seed`: reset and fill the database with test data (test accounts use the password `lozinka123`)
 - `npx prisma studio`: browse the database
@@ -50,6 +50,8 @@ src/
     validations/       Zod schemas shared by forms and server actions
     surfaces.ts        court surfaces: SURFACES, SURFACE_LABELS, URL slugs
     format.ts          display helpers: formatPrice, DAY_LABELS
+    time.ts            Europe/Belgrade time helpers (belgradeToUtc, todayInBelgrade, ...)
+    availability.ts    pure slot logic (buildSlots), unit tested
   server/
     queries/           read-only data functions for Server Components (e.g. getClubs, getClub)
     actions/           server actions for mutations ("use server")
@@ -69,7 +71,8 @@ prisma/
 - Never trust a role sent by the client; read it from the server session.
 - Use the same Zod schema for the form (`zodResolver`) and the server action; never duplicate validation.
 - Prices are `Int` in RSD. Display: `new Intl.NumberFormat("sr-RS").format(price) + " RSD"`.
-- Store times in UTC and display them in `Europe/Belgrade`; format with date-fns and the `sr-Latn` locale.
+- Store times in UTC and display them in `Europe/Belgrade`; convert with `src/lib/time.ts`, format with date-fns and the `sr-Latn` locale.
+- Put non-trivial logic in pure functions in `src/lib` and cover it with Vitest tests (`*.test.ts` next to the file).
 - Don't hand-edit `src/generated/` or `src/components/ui/` unless that is the task.
 - Don't add npm packages without asking in the issue or PR.
 
