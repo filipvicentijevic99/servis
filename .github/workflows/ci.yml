@@ -15,7 +15,7 @@ jobs:
     name: Lint, typecheck i build
     runs-on: ubuntu-latest
     env:
-      # Lažne vrednosti: build ne pristupa bazi, ali Prisma i Better Auth (posle auth PR-a) traže da postoje.
+      # Dummy values: the build never touches the database, but Prisma and Better Auth require them.
       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
       BETTER_AUTH_SECRET: ci-only-secret-not-used-anywhere-0123456789
       BETTER_AUTH_URL: http://localhost:3000

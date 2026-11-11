@@ -1,4 +1,4 @@
-# Isti krajevi redova (LF) na Windowsu i Linuxu, da git ne prijavljuje lažne izmene
+# Same line endings (LF) on Windows and Linux, so git doesn't report phantom changes
 * text=auto eol=lf
 *.png binary
 *.jpg binary

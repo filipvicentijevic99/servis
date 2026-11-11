@@ -5,12 +5,12 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { isRole, type Role } from "@/lib/roles";
 
-/** Trenutna sesija ili null. Keširano u okviru jednog zahteva. */
+/** Current session or null. Cached per request. */
 export const getSession = cache(async () => {
   return auth.api.getSession({ headers: await headers() });
 });
 
-/** Za stranice i akcije koje traže ulogovanog korisnika. */
+/** For pages and actions that require a signed-in user. */
 export async function requireUser(callbackUrl?: string) {
   const session = await getSession();
   if (!session) {
@@ -20,7 +20,7 @@ export async function requireUser(callbackUrl?: string) {
   return session.user;
 }
 
-/** Za stranice i akcije dostupne samo određenoj ulozi, npr. dashboard vlasnika. */
+/** For pages and actions limited to one role, e.g. the club owner dashboard. */
 export async function requireRole(role: Role, callbackUrl?: string) {
   const user = await requireUser(callbackUrl);
   if (!isRole(user.role) || user.role !== role) redirect("/");

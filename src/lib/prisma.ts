@@ -1,8 +1,8 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-// U dev modu Next.js ponovo učitava module, pa klijenta čuvamo globalno
-// da ne bismo otvarali novu konekciju na svaku izmenu fajla.
+// Next.js reloads modules in dev mode, so the client is cached globally
+// to avoid opening a new connection on every file change.
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 function createPrismaClient() {

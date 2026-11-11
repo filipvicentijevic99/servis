@@ -1,24 +1,24 @@
 ---
-name: Funkcionalnost
-about: Nova stranica, komponenta ili logika
+name: Feature
+about: A new page, component or piece of logic
 title: ""
 labels: feature
 assignees: ""
 ---
 
-## Opis
+## Description
 
-Šta treba napraviti i zašto.
+What needs to be built and why.
 
 ## Acceptance criteria
 
 - [ ] ...
 - [ ] ...
 
-## Hintovi
+## Hints
 
-Komponente, fajlovi ili dokumentacija koji mogu pomoći.
+Components, files or docs that might help.
 
-## Zavisi od
+## Depends on
 
-Issue-i koji moraju biti gotovi pre ovog (ako ih ima).
+Issues that must be done first (if any).

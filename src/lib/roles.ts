@@ -1,4 +1,4 @@
-// Uloge na jednom mestu, da ih koriste i server i klijent (bez uvoza Prisma klijenta u browser).
+// Roles in one place, shared by server and client (without importing the Prisma client in the browser).
 export const ROLES = ["PLAYER", "CLUB_OWNER"] as const;
 export type Role = (typeof ROLES)[number];
 
@@ -11,7 +11,7 @@ export function isRole(value: unknown): value is Role {
   return typeof value === "string" && (ROLES as readonly string[]).includes(value);
 }
 
-/** Gde korisnik ide posle logina ili registracije. */
+/** Where the user lands after login or sign-up. */
 export function homeForRole(role: Role): string {
   return role === "CLUB_OWNER" ? "/dashboard" : "/";
 }

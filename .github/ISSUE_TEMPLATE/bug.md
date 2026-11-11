@@ -1,24 +1,24 @@
 ---
 name: Bug
-about: Nešto ne radi kako treba
+about: Something doesn't work as expected
 title: ""
 labels: bug
 assignees: ""
 ---
 
-## Šta se desilo
+## What happened
 
-## Šta je trebalo da se desi
+## What should have happened
 
-## Koraci za ponavljanje
+## Steps to reproduce
 
-1. Idi na ...
-2. Klikni na ...
+1. Go to ...
+2. Click on ...
 3. ...
 
-## Screenshot ili greška iz konzole
+## Screenshot or console error
 
-## Okruženje
+## Environment
 
-- Stranica / URL:
-- Browser i uređaj:
+- Page / URL:
+- Browser and device:

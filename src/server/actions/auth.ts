@@ -17,7 +17,7 @@ export type ActionResult =
   | { ok: true; redirectTo: string }
   | { ok: false; error: string; fieldErrors?: Partial<Record<string, string[]>> };
 
-// Prevodimo najčešće greške Better Auth-a na srpski.
+// Map the most common Better Auth errors to Serbian messages for the UI.
 function toMessage(error: unknown): string {
   if (error instanceof APIError) {
     const code = String((error.body as { code?: string } | undefined)?.code ?? "");
@@ -31,7 +31,7 @@ function toMessage(error: unknown): string {
   return "Nešto nije u redu. Pokušaj ponovo.";
 }
 
-// Dozvoljavamo samo relativne putanje unutar aplikacije (zaštita od open redirect-a).
+// Only allow relative in-app paths (prevents open redirects).
 function safeCallback(callbackUrl?: string | null): string | null {
   return callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//")
     ? callbackUrl

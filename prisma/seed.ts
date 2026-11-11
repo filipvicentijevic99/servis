@@ -1,11 +1,11 @@
 /**
- * Test podaci za lokalni razvoj: nalozi, klubovi, tereni, radno vreme, rezervacije i otvoreni mečevi.
+ * Local development data: accounts, clubs, courts, opening hours, bookings and open matches.
  *
- * Pokretanje: npm run db:seed
+ * Run: npm run db:seed
  *
- * Skripta se može pokretati više puta: prvo briše prethodne test podatke, pa ih pravi ponovo.
- * Briše SVE klubove i rezervacije, ali od korisnika samo test naloge (@servis.test),
- * tako da tvoji lični nalozi ostaju.
+ * Safe to run repeatedly: it deletes the previous test data first, then recreates it.
+ * It deletes ALL clubs and bookings, but only the test users (@servis.test),
+ * so your own accounts are kept.
  */
 import { config } from "dotenv";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -16,7 +16,7 @@ import type { Surface, SkillLevel, MatchType } from "../src/generated/prisma/cli
 config({ path: [".env.local", ".env"], quiet: true });
 
 const connectionString = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
-if (!connectionString) throw new Error("DATABASE_URL nije podešen u .env.local");
+if (!connectionString) throw new Error("DATABASE_URL is not set in .env.local");
 
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 
@@ -24,9 +24,9 @@ const TEST_DOMAIN = "@servis.test";
 const TEST_PASSWORD = "lozinka123";
 const TIME_ZONE = "Europe/Belgrade";
 
-// ─── Pomoćne funkcije ─────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────
 
-/** Deterministički "slučajni" brojevi, da seed svaki put da iste podatke. */
+/** Deterministic pseudo-random numbers, so every seed run produces the same data. */
 function createRandom(seed: number) {
   let state = seed;
   return () => {
@@ -40,7 +40,7 @@ function pick<T>(items: readonly T[]): T {
   return items[Math.floor(random() * items.length)]!;
 }
 
-/** Današnji datum u Beogradu kao [godina, mesec, dan]. */
+/** Today's date in Belgrade as [year, month, day]. */
 function todayInBelgrade(): [number, number, number] {
   const [y, m, d] = new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE })
     .format(new Date())
@@ -49,7 +49,7 @@ function todayInBelgrade(): [number, number, number] {
   return [y!, m!, d!];
 }
 
-/** Razlika (u ms) između beogradskog i UTC vremena u datom trenutku: +1 h zimi, +2 h leti. */
+/** Offset (ms) between Belgrade time and UTC at a given instant: +1 h in winter, +2 h in summer. */
 function belgradeOffsetMs(instant: Date): number {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: TIME_ZONE,
@@ -65,7 +65,7 @@ function belgradeOffsetMs(instant: Date): number {
   return asUtc - instant.getTime();
 }
 
-/** Trenutak (UTC) koji odgovara satu `hour` po beogradskom vremenu, `dayOffset` dana od danas. */
+/** The UTC instant of `hour` o'clock Belgrade time, `dayOffset` days from today. */
 function belgradeTime(dayOffset: number, hour: number): Date {
   const [y, m, d] = todayInBelgrade();
   const guess = new Date(Date.UTC(y, m - 1, d + dayOffset, hour));
@@ -86,7 +86,7 @@ function slugify(text: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
-// ─── Podaci ───────────────────────────────────────────────
+// ─── Data ──────────────────────────────────────────────────
 
 type SeedUser = { name: string; email: string; role: "PLAYER" | "CLUB_OWNER" };
 
@@ -106,7 +106,7 @@ type SeedClub = {
   address: string;
   phone: string;
   description: string;
-  owner: number; // indeks vlasnika u USERS
+  owner: number; // index of the owner in USERS
   hours: { weekday: [string, string]; weekend: [string, string] };
   courts: SeedCourt[];
 };
@@ -207,7 +207,7 @@ async function clean() {
   await prisma.openingHours.deleteMany();
   await prisma.court.deleteMany();
   await prisma.club.deleteMany();
-  // Sesije i nalozi (account) se brišu kaskadno sa korisnikom.
+  // Sessions and accounts are deleted by cascade with the user.
   await prisma.user.deleteMany({ where: { email: { endsWith: TEST_DOMAIN } } });
 }
 
@@ -227,7 +227,7 @@ async function createUsers() {
         role: u.role,
         createdAt: now,
         updatedAt: now,
-        // Better Auth čuva lozinku u tabeli account, sa providerId "credential".
+        // Better Auth stores the password in the account table, with providerId "credential".
         accounts: {
           create: {
             id: crypto.randomUUID(),
@@ -246,15 +246,15 @@ async function createUsers() {
 }
 
 async function main() {
-  console.log("Brišem stare test podatke...");
+  console.log("Deleting old test data...");
   await clean();
 
-  console.log("Pravim korisnike...");
+  console.log("Creating users...");
   const users = await createUsers();
   const owners = users.filter((u) => u.role === "CLUB_OWNER");
   const players = users.filter((u) => u.role === "PLAYER");
 
-  console.log("Pravim klubove, terene i radno vreme...");
+  console.log("Creating clubs, courts and opening hours...");
   const courts: { id: string; pricePerHour: number; open: number; close: number }[] = [];
 
   for (const club of CLUBS) {
@@ -280,7 +280,7 @@ async function main() {
       include: { courts: true },
     });
 
-    // Za rezervacije koristimo radno vreme radnim danima (dovoljno za test podatke).
+    // Bookings use weekday opening hours (good enough for test data).
     const open = Number(club.hours.weekday[0].slice(0, 2));
     const close = Number(club.hours.weekday[1].slice(0, 2));
     for (const c of created.courts) {
@@ -288,7 +288,7 @@ async function main() {
     }
   }
 
-  console.log("Pravim rezervacije (30 dana unazad i 14 unapred)...");
+  console.log("Creating bookings (30 days back, 14 days ahead)...");
   const bookingData: {
     courtId: string;
     userId: string;
@@ -300,7 +300,7 @@ async function main() {
 
   for (let day = -30; day <= 14; day++) {
     for (const court of courts) {
-      // 0–4 rezervacije po terenu dnevno, u različitim satima, bez preklapanja.
+      // 0–4 bookings per court per day, at distinct hours, never overlapping.
       const count = Math.floor(random() * 5);
       const hours = new Set<number>();
       while (hours.size < count) {
@@ -321,7 +321,7 @@ async function main() {
   }
   await prisma.booking.createMany({ data: bookingData });
 
-  console.log("Pravim otvorene mečeve...");
+  console.log("Creating open matches...");
   const upcoming = await prisma.booking.findMany({
     where: { status: "CONFIRMED", startsAt: { gt: belgradeTime(1, 0) } },
     orderBy: { startsAt: "asc" },
@@ -338,10 +338,10 @@ async function main() {
 
   let matches = 0;
   for (const [i, booking] of upcoming.entries()) {
-    if (i % 5 !== 0) continue; // svaka peta buduća rezervacija postaje otvoren meč
+    if (i % 5 !== 0) continue; // every fifth upcoming booking becomes an open match
     const type: MatchType = i % 2 === 0 ? "DOUBLES" : "SINGLES";
     const others = players.filter((p) => p.id !== booking.userId);
-    // Dubl: organizator + 0–2 igrača, uvek bar jedno slobodno mesto. Singl: samo organizator.
+    // Doubles: organizer + 0–2 players, always at least one free spot. Singles: organizer only.
     const joined = type === "DOUBLES" ? others.slice(0, Math.floor(random() * 3)) : [];
 
     await prisma.openMatch.create({
@@ -359,10 +359,10 @@ async function main() {
   }
 
   console.log(
-    `\nGotovo: ${users.length} korisnika, ${CLUBS.length} klubova, ${courts.length} terena, ` +
-      `${bookingData.length} rezervacija, ${matches} otvorenih mečeva.`,
+    `\nDone: ${users.length} users, ${CLUBS.length} clubs, ${courts.length} courts, ` +
+      `${bookingData.length} bookings, ${matches} open matches.`,
   );
-  console.log(`Test nalozi (lozinka za sve: ${TEST_PASSWORD}):`);
+  console.log(`Test accounts (password for all: ${TEST_PASSWORD}):`);
   for (const u of USERS) console.log(`  ${u.email.padEnd(24)} ${u.role}`);
 }
 

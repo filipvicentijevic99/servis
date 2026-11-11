@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ROLES } from "@/lib/roles";
 
-// Iste šeme koriste i forme (React Hook Form + zodResolver) i server akcije.
+// The same schemas are used by forms (React Hook Form + zodResolver) and server actions.
 
 export const loginSchema = z.object({
   email: z.email("Unesi ispravnu email adresu."),
