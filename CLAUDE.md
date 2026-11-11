@@ -48,7 +48,11 @@ src/
     session.ts         getSession, requireUser, requireRole (server only)
     roles.ts           ROLES, ROLE_LABELS, homeForRole
     validations/       Zod schemas shared by forms and server actions
-  server/actions/      server actions ("use server")
+    surfaces.ts        court surfaces: SURFACES, SURFACE_LABELS, URL slugs
+    format.ts          display helpers: formatPrice, DAY_LABELS
+  server/
+    queries/           read-only data functions for Server Components (e.g. getClubs, getClub)
+    actions/           server actions for mutations ("use server")
   proxy.ts             route protection (Next.js 16 name for middleware)
 prisma/
   schema.prisma        data model
@@ -60,7 +64,7 @@ prisma/
 ### Code
 
 - Server Components by default; `"use client"` only when you need state, effects or event handlers.
-- Database access only on the server (Server Components or server actions). Never import `@/lib/prisma` or `@/lib/auth` in a client component.
+- Database access only on the server. Reads go in `src/server/queries` and are called from Server Components; mutations go in `src/server/actions`. Never import `@/lib/prisma` or `@/lib/auth` in a client component.
 - Every server action: (1) checks the user with `requireUser()` / `requireRole()`, (2) validates input with a Zod schema from `src/lib/validations`, (3) returns an `ActionResult` (`{ ok: true, ... }` or `{ ok: false, error, fieldErrors? }`) instead of throwing to the UI.
 - Never trust a role sent by the client; read it from the server session.
 - Use the same Zod schema for the form (`zodResolver`) and the server action; never duplicate validation.
