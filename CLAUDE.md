@@ -48,6 +48,7 @@ src/
 ## Pravila
 
 ### Kod
+
 - Imena u kodu (promenljive, funkcije, fajlovi, tabele) su na engleskom; sav tekst koji korisnik vidi je na srpskom latinicom.
 - Server komponente su podrazumevane; `"use client"` samo kad treba state, efekti ili event handleri.
 - Upiti ka bazi samo na serveru: server komponente ili server akcije. Nikad ne uvoziti `@/lib/prisma` ni `@/lib/auth` u klijent komponentu.
@@ -60,17 +61,20 @@ src/
 - Ne dodavati nove npm pakete bez pitanja u issue-u ili PR-u.
 
 ### UI
+
 - Samo Tailwind klase i shadcn komponente; bez posebnih CSS fajlova.
 - Mobile first: svaka stranica mora da radi na 375 px širine.
 - Svaka lista ima loading stanje (skeleton) i prazno stanje.
 - Podržati svetlu i tamnu temu: koristiti shadcn tokene (`bg-background`, `text-muted-foreground`...), ne fiksne boje.
 
 ### Git
+
 - Nikad direktno na `main`. Grana po issue-u: `feature/<broj>-kratak-opis`, `fix/<broj>-...`, `chore/<broj>-...`.
 - Conventional Commits: `feat: ...`, `fix: ...`, `chore: ...`, `docs: ...`, `refactor: ...`.
 - Mali PR-ovi (do oko 300 linija), u opisu `Closes #<broj>` i screenshot za UI promene.
 
 ## Kako radimo sa AI-jem
+
 - Jedan issue = jedna sesija. Na početku pročitaj issue i acceptance criteria i predloži plan pre pisanja koda.
 - Posle izmena pokreni `npm run lint` i `npm run typecheck` i popravi greške.
 - Objasni šta si promenio i zašto, da autor PR-a može da odgovori na pitanja sa review-a.

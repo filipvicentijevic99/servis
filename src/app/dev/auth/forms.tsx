@@ -52,12 +52,20 @@ export function DevAuthForms({ loggedIn }: { loggedIn: boolean }) {
         <h2 className="font-medium">Registracija</h2>
         <input className={input} name="name" placeholder="Ime" required />
         <input className={input} name="email" type="email" placeholder="Email" required />
-        <input className={input} name="password" type="password" placeholder="Lozinka (8+)" required />
+        <input
+          className={input}
+          name="password"
+          type="password"
+          placeholder="Lozinka (8+)"
+          required
+        />
         <select className={input} name="role" defaultValue="PLAYER">
           <option value="PLAYER">Igrač</option>
           <option value="CLUB_OWNER">Vlasnik kluba</option>
         </select>
-        <button className={button} disabled={pending}>Registruj se</button>
+        <button className={button} disabled={pending}>
+          Registruj se
+        </button>
       </form>
 
       <form
@@ -71,7 +79,9 @@ export function DevAuthForms({ loggedIn }: { loggedIn: boolean }) {
         <h2 className="font-medium">Prijava</h2>
         <input className={input} name="email" type="email" placeholder="Email" required />
         <input className={input} name="password" type="password" placeholder="Lozinka" required />
-        <button className={button} disabled={pending}>Prijavi se</button>
+        <button className={button} disabled={pending}>
+          Prijavi se
+        </button>
       </form>
 
       <button className={button} onClick={() => signInWithGoogle("/dev/auth")}>
