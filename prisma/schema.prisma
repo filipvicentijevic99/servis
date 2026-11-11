@@ -1,4 +1,4 @@
-// Prisma 7: URL baze se ne piše ovde nego u prisma.config.ts.
+// Prisma 7: the database URL lives in prisma.config.ts, not here.
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -8,7 +8,7 @@ datasource db {
   provider = "postgresql"
 }
 
-// ─── Enumi ────────────────────────────────────────────────
+// ─── Enums ────────────────────────────────────────────────
 
 enum Role {
   PLAYER
@@ -16,10 +16,10 @@ enum Role {
 }
 
 enum Surface {
-  CLAY // šljaka
-  HARD // beton
-  GRASS // trava
-  CARPET // tepih
+  CLAY // clay
+  HARD // hard court
+  GRASS // grass
+  CARPET // carpet
 }
 
 enum BookingStatus {
@@ -38,8 +38,8 @@ enum SkillLevel {
   ADVANCED
 }
 
-// ─── Better Auth modeli ───────────────────────────────────
-// Imena polja i tabela moraju da ostanu ovakva, jer ih Better Auth tako očekuje.
+// ─── Better Auth models ───────────────────────────────────
+// Field and table names must stay as they are: Better Auth expects them.
 
 model User {
   id            String    @id
@@ -52,7 +52,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  // naša polja
+  // app-specific fields
   role                Role               @default(PLAYER)
   clubs               Club[]
   bookings            Booking[]
@@ -110,7 +110,7 @@ model Verification {
   @@map("verification")
 }
 
-// ─── Domen aplikacije ─────────────────────────────────────
+// ─── App domain ───────────────────────────────────────────
 
 model Club {
   id          String         @id @default(cuid())
@@ -137,7 +137,7 @@ model Court {
   name         String
   surface      Surface
   indoor       Boolean   @default(false)
-  pricePerHour Int // u dinarima
+  pricePerHour Int // in RSD
   isActive     Boolean   @default(true)
   clubId       String
   club         Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
@@ -152,7 +152,7 @@ model OpeningHours {
   id        String @id @default(cuid())
   clubId    String
   club      Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  dayOfWeek Int // 0 = nedelja ... 6 = subota
+  dayOfWeek Int // 0 = Sunday ... 6 = Saturday
   openTime  String // "08:00"
   closeTime String // "22:00"
 
@@ -168,7 +168,7 @@ model Booking {
   startsAt   DateTime
   endsAt     DateTime
   status     BookingStatus @default(CONFIRMED)
-  totalPrice Int // u dinarima
+  totalPrice Int // in RSD
   openMatch  OpenMatch?
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt

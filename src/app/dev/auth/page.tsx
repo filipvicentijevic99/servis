@@ -1,5 +1,5 @@
-// PRIVREMENA test stranica za auth (/dev/auth), dok Tijana ne napravi prave stranice.
-// Obriši je pre deploy-a.
+// TEMPORARY auth test page (/dev/auth) until the real login and registration pages exist.
+// Delete before deploying.
 import { getSession } from "@/lib/session";
 import { DevAuthForms } from "./forms";
 

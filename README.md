@@ -1,61 +1,66 @@
 # Servis
 
-Platforma za rezervaciju tenis terena: pronađi klub, rezerviši termin i nađi partnera za meč.
+A tennis court booking platform: find a club, book a court and find a partner for your match.
 
-> Live demo: _uskoro_ · Status: u razvoju
+> Live demo: _coming soon_ · Status: in development
 
-## Funkcionalnosti
+## Features
 
-- Pretraga klubova po gradu, podlozi i ceni
-- Kalendar slobodnih termina i rezervacija bez preklapanja
-- Moje rezervacije sa otkazivanjem do 24 h pre termina
-- Otvoreni mečevi: objavi termin kome fali partner ili se priključi tuđem
-- Dashboard za vlasnike klubova: tereni, radno vreme, zauzetost i prihod
-- Email potvrde, responsive dizajn, svetla i tamna tema
+- Search clubs by city, court surface and price
+- Availability calendar and bookings without double-booking
+- My bookings, with cancellation up to 24 h before the slot
+- Open matches: post a booking that needs a partner, or join someone else's
+- Club owner dashboard: courts, opening hours, occupancy and revenue
+- Email confirmations, responsive design, light and dark theme
 
-## Stack
+The app is built for the Serbian market, so the UI is in Serbian (Latin script); code, docs and the Git history are in English.
+
+## Tech stack
 
 Next.js 16 · TypeScript · Tailwind CSS · shadcn/ui · PostgreSQL (Neon) · Prisma · Better Auth · Zod · Vercel
 
-## Pokretanje lokalno
+## Getting started
 
-Potrebno: Node.js 22+ i besplatna baza na [Neon](https://neon.com).
+Requirements: Node.js 22+ and a free [Neon](https://neon.com) Postgres database.
 
 ```bash
 git clone https://github.com/filipvicentijevic99/servis.git
 cd servis
 npm install
-cp .env.example .env          # Windows: copy .env.example .env
 ```
 
-U `.env` upiši `DATABASE_URL` i `BETTER_AUTH_SECRET` (`npx auth@latest secret`), pa:
+Create `.env.local` from [`.env.example`](.env.example). The easiest way to fill in the database variables is `neon init`, which writes them for you. Then add `BETTER_AUTH_SECRET` (generate it with `npx auth@latest secret`) and run:
 
 ```bash
 npx prisma migrate dev
+npx prisma generate
+npm run db:seed
 npm run dev
 ```
 
-Aplikacija radi na http://localhost:3000.
+The app runs at http://localhost:3000. The seed creates test accounts (password `lozinka123`), e.g. `vlasnik1@servis.test` (club owner) and `igrac1@servis.test` (player).
 
-## Skripte
+## Scripts
 
-| Komanda | Šta radi |
+| Command | What it does |
 | --- | --- |
-| `npm run dev` | Lokalni server |
-| `npm run build` | Produkcioni build |
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
 | `npm run lint` | ESLint |
-| `npm run typecheck` | TypeScript provera |
-| `npx prisma studio` | Pregled baze u browseru |
+| `npm run typecheck` | Type check (generates Next.js route types first) |
+| `npm run format` | Format code with Prettier |
+| `npm run db:seed` | Fill the database with test data |
+| `npx prisma studio` | Browse the database |
 
-## Kako radimo
+## How we work
 
-Svaki task je GitHub issue na [Project board-u](../../projects). Rad ide na posebnoj grani, kroz pull request i code review, a `main` je zaštićen. Detalji su u [CLAUDE.md](CLAUDE.md).
+Every task is a GitHub issue on the [project board](../../projects). Work happens on a feature branch and goes through a pull request, CI and code review; `main` is protected. Conventions are in [CLAUDE.md](CLAUDE.md).
 
-## Kako smo koristili AI
+## How we used AI
 
-_Popunjava se na kraju projekta: šta je radio AI (Claude Code), a šta mi._
+_To be written at the end of the project: what the AI (Claude Code) did and what we did._
 
-## Tim
+## Team
 
-- [Filip Vicentijević](https://github.com/filipvicentijevic99): arhitektura, backend, code review
+- [Filip Vicentijević](https://github.com/filipvicentijevic99): architecture, backend, code review
 - [Tijana Đuknić](https://github.com/tijana333): frontend, UI

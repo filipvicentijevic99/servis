@@ -1,22 +1,22 @@
 Closes #
 
-## Šta je urađeno
+## What changed
 
 -
 
-## Kako testirati
+## How to test
 
 1.
 2.
 
-## Screenshot
+## Screenshots
 
-<!-- Za UI promene: pre / posle, desktop i telefon -->
+<!-- For UI changes: before / after, desktop and mobile -->
 
-## Checklista
+## Checklist
 
-- [ ] `npm run lint` i `npm run typecheck` prolaze
-- [ ] Radi na telefonu (375 px) i u tamnoj temi
-- [ ] Loading i prazna stanja su pokrivena (ako ima liste)
-- [ ] Nema `console.log`-ova i zakomentarisanog koda
-- [ ] Pročitao/la sam svoj diff pre nego što sam tražio/la review
+- [ ] `npm run lint` and `npm run typecheck` pass
+- [ ] Works on mobile (375 px) and in dark mode
+- [ ] Loading and empty states are covered (for lists)
+- [ ] No `console.log`s or commented-out code
+- [ ] I read my own diff before requesting review

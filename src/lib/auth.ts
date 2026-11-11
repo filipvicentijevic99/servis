@@ -15,7 +15,7 @@ export const auth = betterAuth({
     minPasswordLength: 8,
   },
 
-  // Google login radi tek kad se u .env dodaju ključevi (vidi SETUP.md).
+  // Google login is enabled only when its keys are set in .env.local.
   socialProviders: googleEnabled
     ? {
         google: {
@@ -27,8 +27,8 @@ export const auth = betterAuth({
 
   user: {
     additionalFields: {
-      // Korisnik bira ulogu pri registraciji, zato je input: true.
-      // Dozvoljene vrednosti proverava hook ispod.
+      // Users pick their role at sign-up, hence input: true.
+      // The hook below validates the allowed values.
       role: {
         type: "string",
         required: false,
@@ -50,7 +50,7 @@ export const auth = betterAuth({
         },
       },
       update: {
-        // Uloga se ne menja kroz javni API za izmenu profila.
+        // The role cannot be changed through the public profile update API.
         before: async (data) => {
           const rest: Record<string, unknown> = { ...data };
           delete rest.role;
@@ -60,7 +60,7 @@ export const auth = betterAuth({
     },
   },
 
-  // Mora biti poslednji plugin: postavlja kolačiće kad se auth zove iz server akcija.
+  // Must be the last plugin: sets cookies when auth is called from server actions.
   plugins: [nextCookies()],
 });
 

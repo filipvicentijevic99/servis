@@ -1,81 +1,90 @@
 @AGENTS.md
 
-# Servis: rezervacija tenis terena
+# Servis: tennis court booking
 
-Full-stack aplikacija: klubovi objavljuju terene i radno vreme, igrači rezervišu termine i traže partnere za otvorene mečeve, vlasnici imaju dashboard. Tim od dvoje radi kroz GitHub issues i PR-ove.
+Full-stack app: clubs publish their courts and opening hours, players book slots and find partners through open matches, and club owners get a dashboard. A team of two works through GitHub issues and pull requests.
+
+## Language
+
+- Code, comments, commit messages, branch names, PRs, issues and docs: **English**.
+- Everything the user sees in the app (labels, buttons, messages, errors, emails) and the URLs: **Serbian, Latin script**.
 
 ## Stack
 
-- Next.js 16 (App Router, `src/` folder), TypeScript strict, React 19
-- Tailwind CSS + shadcn/ui (`src/components/ui`), ikone iz `lucide-react`
-- PostgreSQL (Neon) + Prisma 7: šema u `prisma/schema.prisma`, klijent se generiše u `src/generated/prisma`
-- Promenljive okruženja su u `.env.local` (ne commit-uje se); spisak je u `.env.example`
-- Better Auth (email/lozinka + Google), uloge `PLAYER` i `CLUB_OWNER`
-- Zod 4 za validaciju, React Hook Form za forme
-- date-fns za datume, Recharts (preko shadcn `chart`) za grafikone
+- Next.js 16 (App Router, `src/` directory), TypeScript strict, React 19
+- Tailwind CSS + shadcn/ui (`src/components/ui`), icons from `lucide-react`
+- PostgreSQL (Neon) + Prisma 7: schema in `prisma/schema.prisma`, client generated into `src/generated/prisma`
+- Environment variables live in `.env.local` (never committed); the full list is in `.env.example`
+- Better Auth (email/password + Google), roles `PLAYER` and `CLUB_OWNER`
+- Zod 4 for validation, React Hook Form for forms
+- date-fns for dates, Recharts (via shadcn `chart`) for charts
+- Prettier with the Tailwind plugin for formatting
 
-## Komande
+## Commands
 
-- `npm run dev`: lokalni server na http://localhost:3000
-- `npm run lint`, `npm run typecheck`: moraju da prođu pre svakog commit-a
-- `npx prisma migrate dev --name <ime>` pa `npx prisma generate`: posle izmene šeme (Prisma 7 ne generiše klijent sam posle migracije)
-- `npx prisma studio`: pregled baze
+- `npm run dev`: dev server at http://localhost:3000
+- `npm run lint`, `npm run typecheck`, `npm run format`: run before every commit
+- `npx prisma migrate dev --name <name>`, then `npx prisma generate`: after changing the schema (Prisma 7 does not regenerate the client after a migration)
+- `npm run db:seed`: reset and fill the database with test data (test accounts use the password `lozinka123`)
+- `npx prisma studio`: browse the database
 
-## Struktura
+## Structure
 
 ```
 src/
-  app/                 rute (App Router)
-    (public)/          početna, klubovi, klub/[id], mečevi
-    (auth)/            login, registracija
-    igrac/             zaštićeno: samo ulogovani
-    dashboard/         zaštićeno: samo CLUB_OWNER
-    api/auth/[...all]/ Better Auth handler (ne menjati)
+  app/                 routes (App Router)
+    (public)/          home, clubs, klub/[id], mecevi
+    (auth)/            login, registration
+    igrac/             protected: signed-in users only
+    dashboard/         protected: CLUB_OWNER only
+    api/auth/[...all]/ Better Auth handler (do not change)
   components/
-    ui/                shadcn komponente (dodaju se sa `npx shadcn@latest add <ime>`)
-    <oblast>/          komponente po funkcionalnosti, npr. clubs/, booking/, matches/
+    ui/                shadcn components (add with `npx shadcn@latest add <name>`)
+    <area>/            feature components, e.g. clubs/, booking/, matches/
   lib/
-    prisma.ts          jedini Prisma klijent: `import prisma from "@/lib/prisma"`
-    auth.ts            Better Auth konfiguracija (samo server)
-    auth-client.ts     klijent za browser: useSession, signOut, signInWithGoogle
-    session.ts         getSession, requireUser, requireRole (samo server)
+    prisma.ts          the only Prisma client: `import prisma from "@/lib/prisma"`
+    auth.ts            Better Auth config (server only)
+    auth-client.ts     browser client: useSession, signOut, signInWithGoogle
+    session.ts         getSession, requireUser, requireRole (server only)
     roles.ts           ROLES, ROLE_LABELS, homeForRole
-    validations/       Zod šeme, dele ih forme i server akcije
-  server/actions/      server akcije ("use server")
-  proxy.ts             zaštita ruta (Next.js 16 ime za middleware)
+    validations/       Zod schemas shared by forms and server actions
+  server/actions/      server actions ("use server")
+  proxy.ts             route protection (Next.js 16 name for middleware)
+prisma/
+  schema.prisma        data model
+  seed.ts              test data
 ```
 
-## Pravila
+## Rules
 
-### Kod
+### Code
 
-- Imena u kodu (promenljive, funkcije, fajlovi, tabele) su na engleskom; sav tekst koji korisnik vidi je na srpskom latinicom.
-- Server komponente su podrazumevane; `"use client"` samo kad treba state, efekti ili event handleri.
-- Upiti ka bazi samo na serveru: server komponente ili server akcije. Nikad ne uvoziti `@/lib/prisma` ni `@/lib/auth` u klijent komponentu.
-- Server akcija uvek: (1) proveri korisnika sa `requireUser()` / `requireRole()`, (2) validira ulaz Zod šemom iz `src/lib/validations`, (3) vrati `ActionResult` (`{ ok: true, ... }` ili `{ ok: false, error, fieldErrors? }`), ne baca greške ka UI-ju.
-- Ulozi sa klijenta se nikad ne veruje; uloga se čita iz sesije na serveru.
-- Ista Zod šema za formu (`zodResolver`) i za server akciju; ne duplirati validaciju.
-- Cene su `Int` u dinarima. Prikaz: `new Intl.NumberFormat("sr-RS").format(cena) + " RSD"`.
-- Vreme se čuva u UTC, prikazuje u `Europe/Belgrade`; formatiranje preko date-fns sa lokalom `sr-Latn`.
-- Ne menjati ručno fajlove u `src/generated/` ni `src/components/ui/` osim kad je to cilj taska.
-- Ne dodavati nove npm pakete bez pitanja u issue-u ili PR-u.
+- Server Components by default; `"use client"` only when you need state, effects or event handlers.
+- Database access only on the server (Server Components or server actions). Never import `@/lib/prisma` or `@/lib/auth` in a client component.
+- Every server action: (1) checks the user with `requireUser()` / `requireRole()`, (2) validates input with a Zod schema from `src/lib/validations`, (3) returns an `ActionResult` (`{ ok: true, ... }` or `{ ok: false, error, fieldErrors? }`) instead of throwing to the UI.
+- Never trust a role sent by the client; read it from the server session.
+- Use the same Zod schema for the form (`zodResolver`) and the server action; never duplicate validation.
+- Prices are `Int` in RSD. Display: `new Intl.NumberFormat("sr-RS").format(price) + " RSD"`.
+- Store times in UTC and display them in `Europe/Belgrade`; format with date-fns and the `sr-Latn` locale.
+- Don't hand-edit `src/generated/` or `src/components/ui/` unless that is the task.
+- Don't add npm packages without asking in the issue or PR.
 
 ### UI
 
-- Samo Tailwind klase i shadcn komponente; bez posebnih CSS fajlova.
-- Mobile first: svaka stranica mora da radi na 375 px širine.
-- Svaka lista ima loading stanje (skeleton) i prazno stanje.
-- Podržati svetlu i tamnu temu: koristiti shadcn tokene (`bg-background`, `text-muted-foreground`...), ne fiksne boje.
+- Tailwind classes and shadcn components only; no separate CSS files.
+- Mobile first: every page must work at 375 px width.
+- Every list has a loading state (skeleton) and an empty state.
+- Support light and dark themes: use shadcn tokens (`bg-background`, `text-muted-foreground`, ...), never hard-coded colors.
 
 ### Git
 
-- Nikad direktno na `main`. Grana po issue-u: `feature/<broj>-kratak-opis`, `fix/<broj>-...`, `chore/<broj>-...`.
-- Conventional Commits: `feat: ...`, `fix: ...`, `chore: ...`, `docs: ...`, `refactor: ...`.
-- Mali PR-ovi (do oko 300 linija), u opisu `Closes #<broj>` i screenshot za UI promene.
+- Never commit directly to `main`. One branch per issue: `feature/<number>-short-description`, `fix/<number>-...`, `chore/<number>-...`.
+- Conventional Commits in English: `feat: add club filters`, `fix: ...`, `chore: ...`, `docs: ...`, `refactor: ...`.
+- Small PRs (about 300 lines max) with `Closes #<number>` in the description and screenshots for UI changes. Squash and merge.
 
-## Kako radimo sa AI-jem
+## Working with AI
 
-- Jedan issue = jedna sesija. Na početku pročitaj issue i acceptance criteria i predloži plan pre pisanja koda.
-- Posle izmena pokreni `npm run lint` i `npm run typecheck` i popravi greške.
-- Objasni šta si promenio i zašto, da autor PR-a može da odgovori na pitanja sa review-a.
-- Ako nešto u issue-u nije jasno, pitaj umesto da pretpostaviš.
+- One issue = one session. Start by reading the issue and its acceptance criteria and propose a plan before writing code.
+- After making changes, run `npm run lint` and `npm run typecheck` and fix any errors.
+- Explain what you changed and why, so the PR author can answer review questions.
+- If something in the issue is unclear, ask instead of guessing.
