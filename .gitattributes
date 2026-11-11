@@ -1,0 +1,5 @@
+# Isti krajevi redova (LF) na Windowsu i Linuxu, da git ne prijavljuje lažne izmene
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
