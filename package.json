@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "postinstall": "prisma generate",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
