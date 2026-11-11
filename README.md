@@ -58,4 +58,4 @@ _Popunjava se na kraju projekta: šta je radio AI (Claude Code), a šta mi._
 ## Tim
 
 - [<Ime Prezime>](https://github.com/<username>): arhitektura, backend, code review
-- [Tijana](https://github.com/tijana333): frontend, UI
+- [Tijana Đuknić](https://github.com/tijana333): frontend, UI
