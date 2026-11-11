@@ -22,7 +22,7 @@ Next.js 16 · TypeScript · Tailwind CSS · shadcn/ui · PostgreSQL (Neon) · Pr
 Potrebno: Node.js 22+ i besplatna baza na [Neon](https://neon.com).
 
 ```bash
-git clone https://github.com/<username>/servis.git
+git clone https://github.com/filipvicentijevic99/servis.git
 cd servis
 npm install
 cp .env.example .env          # Windows: copy .env.example .env
@@ -57,5 +57,5 @@ _Popunjava se na kraju projekta: šta je radio AI (Claude Code), a šta mi._
 
 ## Tim
 
-- [<Ime Prezime>](https://github.com/<username>): arhitektura, backend, code review
+- [Filip Vicentijević](https://github.com/filipvicentijevic99): arhitektura, backend, code review
 - [Tijana Đuknić](https://github.com/tijana333): frontend, UI
