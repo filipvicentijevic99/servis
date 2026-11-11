@@ -5,6 +5,8 @@ import { ArrowRight, Building2, CalendarDays, MapPin, Search, Trophy } from "luc
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getClubs } from "@/server/queries/clubs";
+import { formatPrice } from "@/lib/format";
 
 const steps = [
   {
@@ -24,25 +26,19 @@ const steps = [
   },
 ];
 
-const featuredClubs = [
-  {
-    name: "Teniski klub Beograd",
-    city: "Beograd",
-    image: "/clubs/club-beograd.jpg",
-  },
-  {
-    name: "Teniski klub Novi Sad",
-    city: "Novi Sad",
-    image: "/clubs/club-novi-sad.jpg",
-  },
-  {
-    name: "Teniski klub Niš",
-    city: "Niš",
-    image: "/clubs/club-nis.jpg",
-  },
+const fallbackImages = [
+  "/clubs/club-beograd.webp",
+  "/clubs/club-novi-sad.webp",
+  "/clubs/club-nis.webp",
 ];
 
-export default function Home() {
+export default async function Home() {
+  const { items } = await getClubs({
+    page: 1,
+    surface: undefined,
+  });
+  const featured = items.slice(0, 3);
+
   return (
     <main>
       {/* Hero section */}
@@ -103,7 +99,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured clubs with temporary mock data */}
+      {/* Featured clubs from the database */}
       <section className="bg-muted/30 px-4 py-20">
         <div className="mx-auto max-w-6xl">
           <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
@@ -118,36 +114,52 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {featuredClubs.map((club) => (
-              <Card key={club.name} className="overflow-hidden pt-0">
-                <div className="relative h-44 w-full">
-                  <Image
-                    src={club.image}
-                    alt={`Ilustracija teniskih terena za ${club.city}`}
-                    fill
-                    sizes="(max-width: 767px) 100vw, 33vw"
-                    className="object-cover"
-                  />
-                </div>
+          {featured.length === 0 ? (
+            <p className="text-muted-foreground">Trenutno nema dostupnih klubova.</p>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-3">
+              {featured.map((club, index) => (
+                <Link
+                  key={club.id}
+                  href={`/klub/${club.slug}`}
+                  className="group block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                >
+                  <Card className="h-full overflow-hidden pt-0 transition-shadow hover:shadow-md">
+                    <div className="relative h-44 w-full">
+                      <Image
+                        src={club.image ?? fallbackImages[index % fallbackImages.length]}
+                        alt={
+                          club.image
+                            ? `Teniski tereni kluba ${club.name}`
+                            : "Ilustrativna fotografija teniskog terena"
+                        }
+                        fill
+                        sizes="(max-width: 767px) 100vw, 33vw"
+                        className="object-cover"
+                      />
+                    </div>
 
-                <CardHeader>
-                  <CardTitle>{club.name}</CardTitle>
+                    <CardHeader>
+                      <CardTitle className="group-hover:text-primary">{club.name}</CardTitle>
 
-                  <CardDescription className="flex items-center gap-2">
-                    <MapPin aria-hidden="true" className="size-4" />
-                    {club.city}
-                  </CardDescription>
-                </CardHeader>
+                      <CardDescription className="flex items-center gap-2">
+                        <MapPin aria-hidden="true" className="size-4" />
+                        {club.city}
+                      </CardDescription>
+                    </CardHeader>
 
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Istraži teniske terene i dostupne termine.
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    <CardContent>
+                      {club.minPrice !== null ? (
+                        <p className="font-semibold">Od {formatPrice(club.minPrice)}</p>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">Cena nije dostupna</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
