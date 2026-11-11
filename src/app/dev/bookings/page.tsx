@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { getMyBookings, type MyBooking } from "@/server/queries/bookings";
 import { cancelBooking } from "@/server/actions/bookings";
+import { createOpenMatch } from "@/server/actions/matches";
 import { formatBelgradeTime, todayInBelgrade } from "@/lib/time";
 import { formatPrice } from "@/lib/format";
 
@@ -15,6 +16,18 @@ async function cancel(formData: FormData) {
   redirect(`/dev/bookings?msg=${encodeURIComponent(msg)}`);
 }
 
+async function openMatch(formData: FormData) {
+  "use server";
+  const result = await createOpenMatch({
+    bookingId: String(formData.get("bookingId")),
+    type: String(formData.get("type")) as "SINGLES" | "DOUBLES",
+    level: String(formData.get("level")) as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",
+    note: String(formData.get("note") ?? ""),
+  });
+  const msg = result.ok ? `Open match created: ${result.matchId}` : result.error;
+  redirect(`/dev/bookings?msg=${encodeURIComponent(msg)}`);
+}
+
 function Row({ booking }: { booking: MyBooking }) {
   return (
     <li className="flex items-center justify-between gap-4 rounded border p-2">
@@ -22,7 +35,24 @@ function Row({ booking }: { booking: MyBooking }) {
         {todayInBelgrade(booking.startsAt)} {formatBelgradeTime(booking.startsAt)} ·{" "}
         {booking.club.name}, {booking.court.name} · {formatPrice(booking.totalPrice)} ·{" "}
         {booking.status}
+        {booking.hasOpenMatch && " · OPEN MATCH"}
       </span>
+      {booking.status === "CONFIRMED" && !booking.hasOpenMatch && booking.endsAt > new Date() && (
+        <form action={openMatch} className="flex gap-1">
+          <input type="hidden" name="bookingId" value={booking.id} />
+          <select name="type" className="rounded border px-1">
+            <option value="DOUBLES">Doubles</option>
+            <option value="SINGLES">Singles</option>
+          </select>
+          <select name="level" className="rounded border px-1">
+            <option value="INTERMEDIATE">Intermediate</option>
+            <option value="BEGINNER">Beginner</option>
+            <option value="ADVANCED">Advanced</option>
+          </select>
+          <input name="note" placeholder="Note" className="w-24 rounded border px-1" />
+          <button className="rounded border px-2 py-1">Open match</button>
+        </form>
+      )}
       {booking.status === "CONFIRMED" && (
         <form action={cancel}>
           <input type="hidden" name="bookingId" value={booking.id} />
