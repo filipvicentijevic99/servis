@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 import { MatchList } from "./match-list";
 import type { OpenMatchItem } from "@/server/queries/matches";
+import { optimisticMembership } from "@/lib/open-match-ui";
 
 const host = { id: "host", name: "Ana Petrović", image: null };
 const match: OpenMatchItem = {
@@ -56,17 +57,37 @@ describe("match cards", () => {
     expect(html).not.toContain("Napusti meč");
     expect(html).not.toContain("Priključi se");
   });
-  it("does not render full matches and provides an empty state", () => {
-    const html = renderToStaticMarkup(
-      <MatchList
-        matches={[{ ...match, spotsLeft: 0 }]}
-        user={host}
-        joinAction={action}
-        leaveAction={action}
-      />,
+  it.each([null, { id: "outsider", name: "Drugi igrač", image: null }])(
+    "hides full matches from nonparticipants (%s)",
+    (user) => {
+      const html = renderToStaticMarkup(
+        <MatchList
+          matches={[{ ...match, spotsLeft: 0 }]}
+          user={user}
+          joinAction={action}
+          leaveAction={action}
+        />,
+      );
+      expect(html).toContain("Nema otvorenih mečeva");
+      expect(html).not.toContain("Test klub");
+    },
+  );
+  it("keeps the last joining participant's full match visible and allows leaving", () => {
+    const user = { id: "player", name: "Milan", image: null };
+    const single = { ...match, type: "SINGLES" as const, capacity: 2, spotsLeft: 1 };
+    const joined = optimisticMembership([single], { matchId: match.id, player: user, join: true });
+    expect(joined[0].spotsLeft).toBe(0);
+    const joinedHtml = renderToStaticMarkup(
+      <MatchList matches={joined} user={user} joinAction={action} leaveAction={action} />,
     );
-    expect(html).toContain("Nema otvorenih mečeva");
-    expect(html).not.toContain("Test klub");
+    expect(joinedHtml).toContain("Test klub");
+    expect(joinedHtml).toContain("Napusti meč");
+    const left = optimisticMembership(joined, { matchId: match.id, player: user, join: false });
+    const leftHtml = renderToStaticMarkup(
+      <MatchList matches={left} user={user} joinAction={action} leaveAction={action} />,
+    );
+    expect(left[0].spotsLeft).toBe(1);
+    expect(leftHtml).toContain("Priključi se");
   });
   it("renders a participant's photo when present", () => {
     const html = renderToStaticMarkup(

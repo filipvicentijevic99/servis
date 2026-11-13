@@ -30,7 +30,6 @@ describe("optimistic match membership", () => {
       join: true,
     });
     expect(updated[0]).toMatchObject({ spotsLeft: 0, isJoined: true, canJoin: false });
-    expect(updated.filter((match) => match.spotsLeft > 0)).toEqual([]);
     expect(sampleMatch.players).toEqual([host]);
     expect(sampleMatch.spotsLeft).toBe(1);
   });

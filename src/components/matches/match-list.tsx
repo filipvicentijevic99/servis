@@ -50,7 +50,9 @@ export function MatchList({ matches, user, joinAction, leaveAction }: Props) {
   const inFlight = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const visible = optimistic.filter((match) => match.spotsLeft > 0);
+  const visible = optimistic.filter(
+    (match) => match.spotsLeft > 0 || (user !== null && match.isJoined),
+  );
 
   function change(match: OpenMatchItem) {
     if (!user || match.isOrganizer || inFlight.current || (!match.isJoined && !match.canJoin))
