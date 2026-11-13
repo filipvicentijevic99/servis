@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { APIError } from "better-auth/api";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import { homeForRole, isRole } from "@/lib/roles";
+import { homeForRole } from "@/lib/roles";
+import { authRedirectFor } from "@/lib/auth-redirect";
 import {
   loginSchema,
   registerSchema,
@@ -25,17 +26,10 @@ function toMessage(error: unknown): string {
       return "Nalog sa ovom email adresom već postoji.";
     }
     if (code === "INVALID_EMAIL_OR_PASSWORD") return "Pogrešan email ili lozinka.";
-    if (error.message) return error.message;
+    return "Nešto nije u redu. Pokušaj ponovo.";
   }
   console.error(error);
   return "Nešto nije u redu. Pokušaj ponovo.";
-}
-
-// Only allow relative in-app paths (prevents open redirects).
-function safeCallback(callbackUrl?: string | null): string | null {
-  return callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//")
-    ? callbackUrl
-    : null;
 }
 
 export async function registerAction(input: RegisterInput): Promise<ActionResult> {
@@ -85,8 +79,7 @@ export async function loginAction(
     return { ok: false, error: toMessage(error) };
   }
 
-  const fallback = isRole(role) ? homeForRole(role) : "/";
-  return { ok: true, redirectTo: safeCallback(callbackUrl) ?? fallback };
+  return { ok: true, redirectTo: authRedirectFor(role, callbackUrl) };
 }
 
 export async function logoutAction() {
