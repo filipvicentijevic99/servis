@@ -21,8 +21,17 @@ import type { cancelBooking } from "@/server/actions/bookings";
 import { bookingDateLabel, bookingTimeLabel } from "@/lib/my-bookings";
 import { formatPrice } from "@/lib/format";
 import { SURFACE_LABELS } from "@/lib/surfaces";
+import { PostOpenMatch } from "./post-open-match";
+import { canPostOpenMatch } from "@/lib/post-open-match";
+import type { createOpenMatch } from "@/server/actions/matches";
 
-type Props = { upcoming: MyBooking[]; past: MyBooking[]; cancelAction: typeof cancelBooking };
+type Props = {
+  upcoming: MyBooking[];
+  past: MyBooking[];
+  cancelAction: typeof cancelBooking;
+  postAction?: typeof createOpenMatch;
+  now?: string;
+};
 const limitMessage = "Rezervaciju možeš otkazati najkasnije 24 sata pre početka termina.";
 
 function Cancellation({
@@ -161,11 +170,16 @@ function Cancellation({
   );
 }
 
-export function MyBookings({ upcoming, past, cancelAction }: Props) {
+export function MyBookings({ upcoming, past, cancelAction, postAction, now }: Props) {
   const router = useRouter();
   const [refreshing, startRefresh] = useTransition();
   const [cancelled, setCancelled] = useState<string[]>([]);
-  const active = upcoming.filter((booking) => !cancelled.includes(booking.id));
+  const [published, setPublished] = useState<string[]>([]);
+  const active = upcoming
+    .filter((booking) => !cancelled.includes(booking.id))
+    .map((booking) =>
+      published.includes(booking.id) ? { ...booking, hasOpenMatch: true } : booking,
+    );
   const history = [
     ...upcoming
       .filter((booking) => cancelled.includes(booking.id))
@@ -233,6 +247,25 @@ export function MyBookings({ upcoming, past, cancelAction }: Props) {
                 {isUpcoming && (
                   <Cancellation booking={booking} action={cancelAction} onSuccess={onSuccess} />
                 )}
+                {isUpcoming && booking.hasOpenMatch && (
+                  <p role="status" className="text-sm font-medium">
+                    Meč je objavljen
+                  </p>
+                )}
+                {isUpcoming &&
+                  postAction &&
+                  canPostOpenMatch(booking, now ? new Date(now) : new Date()) && (
+                    <PostOpenMatch
+                      bookingId={booking.id}
+                      clubName={booking.club.name}
+                      courtName={booking.court.name}
+                      action={postAction}
+                      onPosted={() => {
+                        setPublished((items) => [...items, booking.id]);
+                        startRefresh(() => router.refresh());
+                      }}
+                    />
+                  )}
               </CardContent>
             </Card>
           </li>

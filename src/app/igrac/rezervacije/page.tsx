@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getMyBookings } from "@/server/queries/bookings";
 import { cancelBooking } from "@/server/actions/bookings";
 import { MyBookings } from "@/components/bookings/my-bookings";
+import { createOpenMatch } from "@/server/actions/matches";
 
 export const metadata: Metadata = {
   title: "Moje rezervacije | Servis",
@@ -18,7 +19,12 @@ export default async function MyBookingsPage() {
           Pregledaj svoje termine i upravljaj rezervacijama.
         </p>
       </header>
-      <MyBookings {...bookings} cancelAction={cancelBooking} />
+      <MyBookings
+        {...bookings}
+        cancelAction={cancelBooking}
+        postAction={createOpenMatch}
+        now={new Date().toISOString()}
+      />
     </main>
   );
 }
