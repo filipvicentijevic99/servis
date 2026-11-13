@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { APIError } from "better-auth/api";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import { homeForRole } from "@/lib/roles";
 import { authRedirectFor } from "@/lib/auth-redirect";
 import {
   loginSchema,
@@ -32,7 +31,10 @@ function toMessage(error: unknown): string {
   return "Nešto nije u redu. Pokušaj ponovo.";
 }
 
-export async function registerAction(input: RegisterInput): Promise<ActionResult> {
+export async function registerAction(
+  input: RegisterInput,
+  callbackUrl?: string | null,
+): Promise<ActionResult> {
   const parsed = registerSchema.safeParse(input);
   if (!parsed.success) {
     return {
@@ -52,7 +54,7 @@ export async function registerAction(input: RegisterInput): Promise<ActionResult
     return { ok: false, error: toMessage(error) };
   }
 
-  return { ok: true, redirectTo: homeForRole(role) };
+  return { ok: true, redirectTo: authRedirectFor(role, callbackUrl) };
 }
 
 export async function loginAction(

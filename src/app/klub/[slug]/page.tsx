@@ -3,7 +3,10 @@ import { MapPin, Phone } from "lucide-react";
 import { getClub } from "@/server/queries/clubs";
 import { ClubGallery } from "@/components/club-details/gallery";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { BookingPicker } from "@/components/club-details/booking-picker";
+import { Toaster } from "@/components/ui/sonner";
+import { getSession } from "@/lib/session";
+import { bookingDateRange } from "@/lib/booking-picker";
 import { DAY_LABELS, formatPrice } from "@/lib/format";
 import { SURFACE_LABELS } from "@/lib/surfaces";
 import { phoneHref } from "@/lib/club-details";
@@ -11,6 +14,8 @@ import { phoneHref } from "@/lib/club-details";
 export default async function ClubPage({ params }: PageProps<"/klub/[slug]">) {
   const club = await getClub((await params).slug);
   if (!club) notFound();
+  const session = await getSession();
+  const dates = bookingDateRange();
   const phone = phoneHref(club.phone);
   return (
     <main className="mx-auto w-full max-w-6xl space-y-8 px-4 py-10 sm:py-16">
@@ -42,8 +47,8 @@ export default async function ClubPage({ params }: PageProps<"/klub/[slug]">) {
               Tereni
             </h2>
             <p id="booking-availability" className="text-sm text-muted-foreground">
-              Online rezervacije uskoro će biti dostupne. Za informacije o terminima kontaktiraj
-              klub.
+              Izaberi datum i slobodan termin. Sva vremena prikazana su po lokalnom vremenu u
+              Srbiji.
             </p>
             {club.courts.length ? (
               <ul className="space-y-4">
@@ -57,18 +62,21 @@ export default async function ClubPage({ params }: PageProps<"/klub/[slug]">) {
                           {court.indoor ? "Zatvoreni teren" : "Otvoreni teren"}
                         </p>
                       </CardHeader>
-                      <CardContent className="flex flex-wrap items-center justify-between gap-4">
+                      <CardContent className="space-y-4">
                         <p className="font-semibold">
                           {formatPrice(court.pricePerHour)}{" "}
                           <span className="font-normal text-muted-foreground">/ sat</span>
                         </p>
-                        <Button
-                          disabled
-                          aria-describedby="booking-availability"
-                          className="min-h-11"
-                        >
-                          Rezerviši
-                        </Button>
+                        <BookingPicker
+                          courtId={court.id}
+                          courtName={court.name}
+                          clubName={club.name}
+                          slug={club.slug}
+                          price={court.pricePerHour}
+                          minDate={dates.min}
+                          maxDate={dates.max}
+                          signedIn={Boolean(session)}
+                        />
                       </CardContent>
                     </Card>
                   </li>
@@ -128,6 +136,7 @@ export default async function ClubPage({ params }: PageProps<"/klub/[slug]">) {
           </Card>
         </aside>
       </div>
+      <Toaster containerAriaLabel="Obaveštenja" />
     </main>
   );
 }

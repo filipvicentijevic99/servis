@@ -33,7 +33,7 @@ export function RegisterForm({ googleEnabled, callbackUrl }: RegisterFormProps) 
   async function onSubmit(input: RegisterInput) {
     clearErrors("root");
     try {
-      const result = await registerAction(input);
+      const result = await registerAction(input, callbackUrl);
       if (!result.ok) {
         for (const name of ["name", "email", "password", "confirmPassword", "role"] as const) {
           const message = result.fieldErrors?.[name]?.[0];
