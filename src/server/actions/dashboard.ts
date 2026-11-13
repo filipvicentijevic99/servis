@@ -91,17 +91,29 @@ export async function deleteCourt(input: { courtId: string }): Promise<Dashboard
   const court = await ownedCourt(courtId, owner.id);
   if (!court) return { ok: false, error: "Teren ne postoji." };
 
-  const bookings = await prisma.booking.count({ where: { courtId } });
-  if (bookings > 0) {
-    return {
-      ok: false,
-      error: "Teren ima rezervacije, pa ne može da se obriše. Isključi ga umesto toga.",
-    };
-  }
-
-  await prisma.court.delete({ where: { id: courtId } });
-  revalidateClub(court.club.slug);
-  return { ok: true, id: courtId };
+  const result = await prisma.$transaction(
+    async (tx): Promise<DashboardActionResult> => {
+      // FK inserts take a key-share lock on Court. Lock first so a new booking cannot
+      // slip between the history check and the cascading delete. ReadCommitted makes
+      // the count see bookings committed while this lock was being acquired.
+      const rows = await tx.$queryRaw<{ id: string }[]>`
+        SELECT "id" FROM "Court" WHERE "id" = ${courtId} FOR UPDATE
+      `;
+      if (!rows.length) return { ok: false, error: "Teren ne postoji." };
+      const bookings = await tx.booking.count({ where: { courtId } });
+      if (bookings > 0) {
+        return {
+          ok: false,
+          error: "Teren ima rezervacije, pa ne može da se obriše. Isključi ga umesto toga.",
+        };
+      }
+      await tx.court.delete({ where: { id: courtId } });
+      return { ok: true, id: courtId };
+    },
+    { isolationLevel: "ReadCommitted" },
+  );
+  if (result.ok) revalidateClub(court.club.slug);
+  return result;
 }
 
 /** Replaces the club's weekly opening hours. Closed days have no row. */
