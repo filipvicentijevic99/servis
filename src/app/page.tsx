@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getClubs } from "@/server/queries/clubs";
 import { formatPrice } from "@/lib/format";
 
+export const dynamic = "force-dynamic";
+
 const steps = [
   {
     title: "Pronađi klub",
