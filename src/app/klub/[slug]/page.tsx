@@ -4,7 +4,6 @@ import { getClub } from "@/server/queries/clubs";
 import { ClubGallery } from "@/components/club-details/gallery";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { BookingPicker } from "@/components/club-details/booking-picker";
-import { Toaster } from "@/components/ui/sonner";
 import { getSession } from "@/lib/session";
 import { bookingDateRange } from "@/lib/booking-picker";
 import { DAY_LABELS, formatPrice } from "@/lib/format";
@@ -136,7 +135,6 @@ export default async function ClubPage({ params }: PageProps<"/klub/[slug]">) {
           </Card>
         </aside>
       </div>
-      <Toaster containerAriaLabel="Obaveštenja" />
     </main>
   );
 }
