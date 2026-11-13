@@ -82,6 +82,18 @@ describe("auth error messages", () => {
 });
 
 describe("registerAction", () => {
+  it.each([
+    ["/klub/ada-tennis-club", "/klub/ada-tennis-club"],
+    ["https://example.com", "/"],
+    ["//example.com", "/"],
+    ["/\\example.com", "/"],
+  ])(
+    "preserves only a safe post-registration booking callback: %s",
+    async (callback, redirectTo) => {
+      api.signUpEmail.mockResolvedValue({ user: { role: "PLAYER" } });
+      expect(await registerAction(registration, callback)).toEqual({ ok: true, redirectTo });
+    },
+  );
   it("rejects a password mismatch before calling auth", async () => {
     expect(await registerAction({ ...registration, confirmPassword: "different" })).toMatchObject({
       ok: false,
