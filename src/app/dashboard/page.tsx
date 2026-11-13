@@ -9,7 +9,6 @@ import {
 import { CourtManagement } from "@/components/dashboard/court-management";
 import { OpeningHoursForm } from "@/components/dashboard/opening-hours-form";
 import { ClubSwitcher } from "@/components/dashboard/club-switcher";
-import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = { title: "Upravljanje klubom | Servis" };
 
@@ -49,7 +48,6 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
           <OpeningHoursForm clubId={club.id} week={club.week} saveAction={updateOpeningHours} />
         </div>
       )}
-      <Toaster />
     </main>
   );
 }

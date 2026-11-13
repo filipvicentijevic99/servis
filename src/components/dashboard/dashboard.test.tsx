@@ -137,6 +137,6 @@ describe("owner dashboard", () => {
   });
   it("announces loading and offers error recovery without leaking server errors", () => {
     expect(renderToStaticMarkup(<DashboardLoading />)).toContain('role="status"');
-    expect(renderToStaticMarkup(<DashboardError retry={vi.fn()} />)).toContain("Pokušaj ponovo");
+    expect(renderToStaticMarkup(<DashboardError reset={vi.fn()} />)).toContain("Pokušaj ponovo");
   });
 });
