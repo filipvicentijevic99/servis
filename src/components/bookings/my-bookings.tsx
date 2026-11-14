@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Tabs } from "@base-ui/react/tabs";
 import { Tooltip } from "@base-ui/react/tooltip";
 import { toast } from "sonner";
+import { CalendarDays } from "lucide-react";
+import { EmptyState } from "@/components/states/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import {
@@ -194,20 +196,20 @@ export function MyBookings({ upcoming, past, cancelAction, postAction, now }: Pr
   function list(items: MyBooking[], isUpcoming: boolean) {
     if (!items.length)
       return (
-        <div className="rounded-xl border border-dashed px-4 py-12 text-center">
-          <h2 className="text-xl font-semibold">
-            {isUpcoming ? "Nema predstojećih rezervacija" : "Nema prošlih rezervacija"}
-          </h2>
-          <p className="mt-2 text-muted-foreground">
-            Pronađi klub i izaberi termin za sledeći meč.
-          </p>
-          <Link
-            href="/klubovi"
-            className="mt-4 inline-block rounded-sm underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-ring"
+        <EmptyState
+          icon={CalendarDays}
+          title={isUpcoming ? "Nema predstojećih rezervacija" : "Nema prošlih rezervacija"}
+          description="Pronađi klub i izaberi termin za sledeći meč."
+        >
+          <Button
+            nativeButton={false}
+            render={<Link href="/klubovi" />}
+            variant="outline"
+            className="min-h-11"
           >
             Pronađi klub
-          </Link>
-        </div>
+          </Button>
+        </EmptyState>
       );
     return (
       <ul className="grid gap-4 md:grid-cols-2">

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
+import { SearchX } from "lucide-react";
+import { EmptyState } from "@/components/states/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { OpenMatchItem } from "@/server/queries/matches";
@@ -95,18 +97,28 @@ export function MatchList({ matches, user, joinAction, leaveAction }: Props) {
         </p>
       )}
       {!visible.length ? (
-        <div className="rounded-xl border border-dashed px-4 py-14 text-center">
-          <h2 className="text-xl font-semibold">Nema otvorenih mečeva</h2>
-          <p className="mt-2 text-muted-foreground">
-            Svi termini su popunjeni ili nema mečeva za izabrane filtere.
-          </p>
-          <Link
-            href="/mecevi"
-            className="mt-4 inline-block rounded-sm underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-ring"
+        <EmptyState
+          icon={SearchX}
+          title="Nema otvorenih mečeva"
+          description="Svi termini su popunjeni ili nema mečeva za izabrane filtere."
+        >
+          <Button
+            nativeButton={false}
+            render={<Link href="/mecevi" />}
+            variant="outline"
+            className="min-h-11"
           >
             Prikaži sve mečeve
-          </Link>
-        </div>
+          </Button>
+          <Button
+            nativeButton={false}
+            render={<Link href="/klubovi" />}
+            variant="ghost"
+            className="min-h-11"
+          >
+            Pronađi teren
+          </Button>
+        </EmptyState>
       ) : (
         <ul className="grid gap-6 md:grid-cols-2">
           {visible.map((match) => (
