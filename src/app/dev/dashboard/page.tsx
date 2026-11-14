@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getClubBookingsForDay, getOwnerClub, getOwnerClubs } from "@/server/queries/dashboard";
+import { getClubStats } from "@/server/queries/dashboard-stats";
 import {
   createCourt,
   deleteCourt,
@@ -69,6 +70,7 @@ export default async function DevDashboardPage({ searchParams }: Props) {
   const clubId = typeof params.club === "string" ? params.club : clubs[0]?.id;
   const club = clubId ? await getOwnerClub(clubId) : null;
   const bookings = club ? await getClubBookingsForDay(club.id, date) : [];
+  const stats = club ? await getClubStats(club.id) : null;
 
   return (
     <main className="mx-auto max-w-4xl space-y-6 p-8 text-sm">
@@ -193,6 +195,12 @@ export default async function DevDashboardPage({ searchParams }: Props) {
             </ul>
           </section>
         </>
+      )}
+      {stats && (
+        <section className="space-y-2">
+          <h2 className="font-medium">getClubStats() (last 30 days)</h2>
+          <pre className="overflow-x-auto text-xs">{JSON.stringify(stats, null, 2)}</pre>
+        </section>
       )}
     </main>
   );
