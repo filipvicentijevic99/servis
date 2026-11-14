@@ -69,6 +69,9 @@ describe("match cards", () => {
         />,
       );
       expect(html).toContain("Nema otvorenih mečeva");
+      expect(html).toContain("lucide-search-x");
+      expect(html).toContain('href="/mecevi"');
+      expect(html).toContain('href="/klubovi"');
       expect(html).not.toContain("Test klub");
     },
   );

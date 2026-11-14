@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getClubs } from "@/server/queries/clubs";
 import { formatPrice } from "@/lib/format";
+import { EmptyState } from "@/components/states/empty-state";
 
 export const dynamic = "force-dynamic";
 
@@ -117,7 +118,21 @@ export default async function Home() {
           </div>
 
           {featured.length === 0 ? (
-            <p className="text-muted-foreground">Trenutno nema dostupnih klubova.</p>
+            <EmptyState
+              icon={Building2}
+              heading="h3"
+              title="Trenutno nema dostupnih klubova."
+              description="Novi klubovi će se pojaviti ovde čim budu dostupni za rezervisanje."
+            >
+              <Button
+                nativeButton={false}
+                render={<Link href="/klubovi" />}
+                variant="outline"
+                className="min-h-11"
+              >
+                Pogledaj sve klubove
+              </Button>
+            </EmptyState>
           ) : (
             <div className="grid gap-6 md:grid-cols-3">
               {featured.map((club, index) => (

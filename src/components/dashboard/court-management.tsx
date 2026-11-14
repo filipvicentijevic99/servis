@@ -3,7 +3,8 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { LayoutGrid, Plus } from "lucide-react";
+import { EmptyState } from "@/components/states/empty-state";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,6 +43,16 @@ export function CourtManagement({ club, actions }: { club: OwnerClub; actions: A
   const court = club.courts.find((item) => item.id === target?.id);
   const missingCourt = !!target?.id && !court;
   const busy = pending || refreshing;
+  const addCourtButton = (
+    <DialogTrigger
+      disabled={busy}
+      onClick={() => setTarget({ kind: "form" })}
+      render={<Button className="min-h-11" />}
+    >
+      <Plus aria-hidden="true" />
+      Dodaj teren
+    </DialogTrigger>
+  );
   function refresh() {
     startTransition(() => router.refresh());
   }
@@ -107,19 +118,17 @@ export function CourtManagement({ club, actions }: { club: OwnerClub; actions: A
               Ukupno terena: {club.courts.length} · cene po satu
             </p>
           </div>
-          <DialogTrigger
-            disabled={busy}
-            onClick={() => setTarget({ kind: "form" })}
-            render={<Button className="min-h-11" />}
-          >
-            <Plus aria-hidden="true" />
-            Dodaj teren
-          </DialogTrigger>
+          {!!club.courts.length && addCourtButton}
         </div>
         {!club.courts.length ? (
-          <p className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
-            Nema terena. Dodaj prvi teren da bi igrači mogli da rezervišu termine.
-          </p>
+          <EmptyState
+            icon={LayoutGrid}
+            heading="h3"
+            title="Nema terena"
+            description="Dodaj prvi teren da bi igrači mogli da rezervišu termine."
+          >
+            {addCourtButton}
+          </EmptyState>
         ) : (
           <div className="overflow-hidden rounded-xl border bg-card">
             <table className="w-full text-left text-sm max-sm:block">

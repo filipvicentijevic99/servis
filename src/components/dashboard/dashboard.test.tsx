@@ -121,9 +121,12 @@ describe("owner dashboard", () => {
     expect(actions.deleteCourt).not.toHaveBeenCalled();
   });
   it("renders an invitation to add the first court", () => {
-    expect(
-      renderToStaticMarkup(<CourtManagement club={{ ...club, courts: [] }} actions={actions} />),
-    ).toContain("Dodaj prvi teren");
+    const html = renderToStaticMarkup(
+      <CourtManagement club={{ ...club, courts: [] }} actions={actions} />,
+    );
+    expect(html).toContain("Dodaj prvi teren");
+    expect(html).toContain("lucide-layout-grid");
+    expect(html.match(/Dodaj teren/g)).toHaveLength(1);
   });
   it("renders all seven days with closed-day controls and labelled times", () => {
     const html = renderToStaticMarkup(

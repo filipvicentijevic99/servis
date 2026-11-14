@@ -47,6 +47,7 @@ describe("my bookings rendering", () => {
   it("provides an empty state linking to club discovery", () => {
     const html = renderToStaticMarkup(<MyBookings upcoming={[]} past={[]} cancelAction={action} />);
     expect(html).toContain("Nema predstojećih rezervacija");
+    expect(html).toContain("lucide-calendar-days");
     expect(html).toContain('href="/klubovi"');
   });
 });

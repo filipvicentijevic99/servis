@@ -53,6 +53,7 @@ export function BookingPicker({
   const [needsLogin, setNeedsLogin] = useState(!signedIn);
   const [message, setMessage] = useState<string | null>(null);
   const inFlight = useRef(false);
+  const dateInput = useRef<HTMLInputElement>(null);
   function refreshSlots() {
     setSelected(null);
     setVersion((value) => value + 1);
@@ -103,6 +104,7 @@ export function BookingPicker({
           <div className="space-y-2">
             <Label htmlFor={`${id}-date`}>Datum termina</Label>
             <Input
+              ref={dateInput}
               id={`${id}-date`}
               type="date"
               value={date}
@@ -122,6 +124,7 @@ export function BookingPicker({
           </div>
           {date >= minDate && date <= maxDate ? (
             <SlotGrid
+              onChooseDate={() => dateInput.current?.focus()}
               key={`${date}-${version}`}
               courtId={courtId}
               date={date}
