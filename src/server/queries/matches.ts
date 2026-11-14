@@ -29,8 +29,8 @@ export type OpenMatchItem = {
 const MAX_RESULTS = 100;
 
 /**
- * Upcoming open matches with free spots, soonest first, for /mecevi.
- * Full matches are left out.
+ * Upcoming open matches with free spots and the user's full matches, soonest first.
+ * Full matches remain hidden from guests and nonparticipants.
  */
 export async function getOpenMatches(
   filters: MatchFilters = {},
@@ -121,5 +121,5 @@ export async function getOpenMatches(
           ) === null,
       };
     })
-    .filter((m) => m.spotsLeft > 0);
+    .filter((m) => m.spotsLeft > 0 || m.isJoined);
 }
