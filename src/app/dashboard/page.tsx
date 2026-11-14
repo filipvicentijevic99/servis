@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getOwnerClub, getOwnerClubs } from "@/server/queries/dashboard";
 import {
   createCourt,
@@ -12,6 +13,8 @@ import { ClubSwitcher } from "@/components/dashboard/club-switcher";
 import { Building2 } from "lucide-react";
 import { EmptyState } from "@/components/states/empty-state";
 import { Button } from "@/components/ui/button";
+import { ClubAnalytics } from "@/components/dashboard/club-analytics";
+import { AnalyticsLoading } from "@/components/dashboard/analytics-loading";
 
 export const metadata: Metadata = { title: "Upravljanje klubom | Servis" };
 
@@ -55,6 +58,9 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
               {club.address}, {club.city}
             </p>
           </section>
+          <Suspense fallback={<AnalyticsLoading />}>
+            <ClubAnalytics clubId={club.id} />
+          </Suspense>
           <CourtManagement club={club} actions={{ createCourt, updateCourt, deleteCourt }} />
           <OpeningHoursForm clubId={club.id} week={club.week} saveAction={updateOpeningHours} />
         </div>

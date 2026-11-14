@@ -15,6 +15,9 @@ vi.mock("@/server/actions/dashboard", () => ({
   deleteCourt: vi.fn(),
   updateOpeningHours: vi.fn(),
 }));
+vi.mock("./club-analytics", () => ({
+  ClubAnalytics: ({ clubId }: { clubId: string }) => <div data-analytics-club={clubId} />,
+}));
 import DashboardPage from "@/app/dashboard/page";
 import DashboardLoading from "@/app/dashboard/loading";
 import DashboardError from "@/app/dashboard/error";
@@ -67,6 +70,7 @@ describe("owner dashboard", () => {
     );
     expect(mocks.club).toHaveBeenCalledWith("club-2");
     expect(html).toContain("Upravljanje klubom");
+    expect(html).toContain('data-analytics-club="club-1"');
   });
   it("selects the first club by default", async () => {
     await DashboardPage({ searchParams: Promise.resolve({}), params: Promise.resolve({}) });
