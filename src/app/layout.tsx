@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/layout/theme-provider";
 
 import "./globals.css";
 
@@ -24,12 +25,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="sr" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="sr"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
       <body className="flex min-h-full flex-col">
-        <Navbar />
-        <div className="flex-1">{children}</div>
-        <Footer />
-        <Toaster containerAriaLabel="Obaveštenja" />
+        <ThemeProvider>
+          <Navbar />
+          <div className="flex-1">{children}</div>
+          <Footer />
+          <Toaster containerAriaLabel="Obaveštenja" />
+        </ThemeProvider>
       </body>
     </html>
   );
