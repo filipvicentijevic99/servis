@@ -2,6 +2,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({ theme: undefined as string | undefined, setTheme: vi.fn() }));
 vi.mock("next-themes", () => ({ useTheme: () => state }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({}) }));
+vi.mock("@/lib/auth-client", () => ({
+  useSession: () => ({ data: null, isPending: false, error: null }),
+  signOut: vi.fn(),
+}));
 import { ThemeToggle } from "./theme-toggle";
 import { Navbar } from "./Navbar";
 
@@ -22,7 +27,8 @@ describe("theme controls", () => {
     expect(html).toContain('aria-label="Glavna navigacija"');
     expect(html).toContain('aria-label="Otvori meni"');
     expect(html).toContain('aria-label="Izaberi temu"');
-    expect(html.match(/size-11/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(html).toContain("size-11");
+    expect(html).toContain("min-w-11");
     expect(html).toContain('href="/login"');
   });
 });
