@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { CalendarX2 } from "lucide-react";
+import { EmptyState } from "@/components/states/empty-state";
 import { Button } from "@/components/ui/button";
 import type { PickerAvailability, PickerSlot } from "@/lib/booking-picker";
 
@@ -11,6 +13,7 @@ export function SlotGrid({
   onSelect,
   disabled,
   onRetry,
+  onChooseDate,
 }: {
   courtId: string;
   date: string;
@@ -18,6 +21,7 @@ export function SlotGrid({
   onSelect: (slot: PickerSlot) => void;
   disabled: boolean;
   onRetry: () => void;
+  onChooseDate: () => void;
 }) {
   const [result, setResult] = useState<PickerAvailability | null>(null);
   useEffect(() => {
@@ -54,16 +58,25 @@ export function SlotGrid({
         <p role="alert" className="text-sm text-destructive">
           {result.error}
         </p>
-        <Button variant="outline" onClick={onRetry}>
+        <Button variant="outline" className="min-h-11" onClick={onRetry}>
           Pokušaj ponovo
         </Button>
       </div>
     );
   if (!result.slots.length)
     return (
-      <p role="status" className="text-sm text-muted-foreground">
-        Nema termina za ovaj datum. Klub je zatvoren ili nema dovoljno vremena za termin.
-      </p>
+      <div role="status">
+        <EmptyState
+          icon={CalendarX2}
+          heading="h3"
+          title="Nema termina za ovaj datum"
+          description="Klub je zatvoren ili nema dovoljno vremena za termin."
+        >
+          <Button variant="outline" className="min-h-11" onClick={onChooseDate}>
+            Izaberi drugi datum
+          </Button>
+        </EmptyState>
+      </div>
     );
   return (
     <div className="space-y-3">
@@ -89,9 +102,18 @@ export function SlotGrid({
         ))}
       </div>
       {!result.slots.some((slot) => slot.status === "available") && (
-        <p role="status" className="text-sm text-muted-foreground">
-          Nema slobodnih termina. Izaberi drugi datum.
-        </p>
+        <div role="status">
+          <EmptyState
+            icon={CalendarX2}
+            heading="h3"
+            title="Nema slobodnih termina"
+            description="Svi termini su zauzeti ili su već prošli. Izaberi datum koji ti odgovara."
+          >
+            <Button variant="outline" className="min-h-11" onClick={onChooseDate}>
+              Izaberi drugi datum
+            </Button>
+          </EmptyState>
+        </div>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 export function ClubListLoading() {
   return (
-    <div role="status" aria-label="Učitavanje klubova">
+    <div role="status" aria-label="Učitavanje klubova" aria-busy="true">
       <span className="sr-only">Učitavanje klubova…</span>
       <div aria-hidden="true" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }, (_, index) => (

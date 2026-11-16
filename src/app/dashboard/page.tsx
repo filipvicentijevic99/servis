@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getOwnerClub, getOwnerClubs } from "@/server/queries/dashboard";
 import {
   createCourt,
@@ -9,6 +10,11 @@ import {
 import { CourtManagement } from "@/components/dashboard/court-management";
 import { OpeningHoursForm } from "@/components/dashboard/opening-hours-form";
 import { ClubSwitcher } from "@/components/dashboard/club-switcher";
+import { Building2 } from "lucide-react";
+import { EmptyState } from "@/components/states/empty-state";
+import { Button } from "@/components/ui/button";
+import { ClubAnalytics } from "@/components/dashboard/club-analytics";
+import { AnalyticsLoading } from "@/components/dashboard/analytics-loading";
 
 export const metadata: Metadata = { title: "Upravljanje klubom | Servis" };
 
@@ -29,9 +35,17 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
       </header>
       <ClubSwitcher clubs={clubs} selectedId={clubId} />
       {!clubs.length ? (
-        <p className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
-          Još nemaš klubova za upravljanje.
-        </p>
+        <EmptyState
+          icon={Building2}
+          title="Još nemaš klubova za upravljanje."
+          description="Klubovi povezani sa tvojim nalogom pojaviće se ovde. Ako očekuješ klub na spisku, osveži prikaz."
+        >
+          <form action="/dashboard">
+            <Button type="submit" variant="outline" className="min-h-11">
+              Osveži prikaz
+            </Button>
+          </form>
+        </EmptyState>
       ) : !club ? (
         <p role="alert" className="rounded-xl border p-6">
           Klub nije dostupan. Izaberi jedan od svojih klubova.
@@ -44,6 +58,9 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
               {club.address}, {club.city}
             </p>
           </section>
+          <Suspense fallback={<AnalyticsLoading />}>
+            <ClubAnalytics clubId={club.id} />
+          </Suspense>
           <CourtManagement club={club} actions={{ createCourt, updateCourt, deleteCourt }} />
           <OpeningHoursForm clubId={club.id} week={club.week} saveAction={updateOpeningHours} />
         </div>

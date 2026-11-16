@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation";
-import { MapPin, Phone } from "lucide-react";
+import { CalendarX2, MapPin, Phone } from "lucide-react";
+import Link from "next/link";
+import { EmptyState } from "@/components/states/empty-state";
+import { Button } from "@/components/ui/button";
 import { getClub } from "@/server/queries/clubs";
 import { ClubGallery } from "@/components/club-details/gallery";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -82,9 +85,21 @@ export default async function ClubPage({ params }: PageProps<"/klub/[slug]">) {
                 ))}
               </ul>
             ) : (
-              <p className="rounded-xl border border-dashed p-6 text-muted-foreground">
-                Trenutno nema aktivnih terena.
-              </p>
+              <EmptyState
+                icon={CalendarX2}
+                heading="h3"
+                title="Trenutno nema aktivnih terena."
+                description="U ovom klubu trenutno nije moguće rezervisati teren. Pogledaj druge klubove i pronađi svoj termin."
+              >
+                <Button
+                  nativeButton={false}
+                  render={<Link href="/klubovi" />}
+                  variant="outline"
+                  className="min-h-11"
+                >
+                  Pronađi drugi klub
+                </Button>
+              </EmptyState>
             )}
           </section>
         </div>

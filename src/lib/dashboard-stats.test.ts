@@ -129,6 +129,44 @@ describe("buildClubStats", () => {
     expect(stats.occupancyByCourt.every((c) => c.occupancy === 0)).toBe(true);
   });
 
+  it("keeps inactive court revenue but excludes inactive courts and cancellations from occupancy", () => {
+    const stats = buildClubStats({
+      bookings: [
+        ...lastDays("2026-11-14").map((date) => booking(date, 9)),
+        booking("2026-11-14", 10, "inactive", 3000),
+        booking("2026-11-14", 11, "c1", 5000, "CANCELLED"),
+      ],
+      courts,
+      openingHours,
+      now,
+    });
+    expect(stats.summary.revenueThisMonth).toBe(14 * 2000 + 3000);
+    expect(stats.summary.bookingsThisMonth).toBe(15);
+    expect(stats.occupancyByCourt).toHaveLength(2);
+    expect(stats.occupancyByCourt[0].bookedHours).toBe(30);
+    expect(stats.summary.averageOccupancy).toBe(5);
+  });
+
+  it("assigns revenue to the local Belgrade date across the UTC month boundary", () => {
+    const stats = buildClubStats({
+      bookings: [
+        {
+          courtId: "c1",
+          startsAt: new Date("2026-10-31T23:30:00Z"),
+          endsAt: new Date("2026-11-01T00:30:00Z"),
+          totalPrice: 2000,
+          status: "CONFIRMED",
+        },
+      ],
+      courts,
+      openingHours,
+      now,
+    });
+    expect(stats.summary.revenueThisMonth).toBe(2000);
+    expect(stats.revenueByDay.find((day) => day.date === "2026-11-01")?.revenue).toBe(2000);
+    expect(stats.revenueByDay.find((day) => day.date === "2026-10-31")?.revenue).toBe(0);
+  });
+
   it("groups bookings by local hour and weekday", () => {
     const stats = buildClubStats({
       bookings: [booking("2026-11-14", 18), booking("2026-11-13", 18), booking("2026-11-13", 9)],

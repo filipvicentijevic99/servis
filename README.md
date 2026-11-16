@@ -14,24 +14,14 @@ The app UI and URLs use Serbian (Latin script). Code, documentation and Git hist
 - **Book a court:** choose a date from today through the next 14 days, select a free one-hour slot and confirm the details. Booked and past slots are disabled; availability refreshes after confirmation or a conflict. Server validation and a database exclusion constraint prevent overlapping bookings.
 - **Manage bookings:** view upcoming and past reservations, cancel at least 24 hours before the start and publish a future confirmed reservation as an open match.
 - **Find partners:** filter open matches by city, level, singles/doubles and date. Join or leave with optimistic feedback. Full matches disappear from public search but remain visible to their participants.
-- **Manage a club:** owners can switch between their clubs, add or edit courts, set prices and active status, and configure all seven days of opening hours. Courts with booking history can be deactivated instead of deleted.
+- **Manage a club:** owners can switch between their clubs, add or edit courts, set prices and active status, and configure all seven days of opening hours. Courts with booking history can be deactivated instead of deleted. The dashboard includes monthly revenue and booking KPIs, average occupancy, a 30-day revenue line chart and occupancy bars by court, with accessible data tables. Cancelled bookings are excluded from revenue; occupancy uses active courts and their current opening hours.
 - **Sign in:** email/password authentication, optional Google sign-in, player/owner roles and server-side access checks.
-- **Use on mobile:** responsive layouts, light/dark styling, loading, empty and error states.
-
-### Work awaiting review
-
-These open PRs are separate from the `main` snapshot shown below. Their implementations are not included in this documentation branch.
-
-| PR                                                           | Pending addition                                                                          |
-| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| [#57](https://github.com/filipvicentijevic99/servis/pull/57) | Owner revenue/occupancy KPIs and accessible SVG charts                                    |
-| [#58](https://github.com/filipvicentijevic99/servis/pull/58) | Booking confirmation/cancellation email templates and preview; sending is a separate task |
-| [#59](https://github.com/filipvicentijevic99/servis/pull/59) | Shared empty states, global error/404 recovery and loading polish                         |
-| [#60](https://github.com/filipvicentijevic99/servis/pull/60) | Persistent Light / Dark / System selector and mobile/contrast fixes                       |
+- **Use on mobile:** responsive layouts, a persistent Light / Dark / System selector, loading skeletons, empty states and global error/404 recovery.
+- **Preview booking emails:** reusable confirmation/cancellation templates with a local React Email preview. Email delivery is not implemented by these templates.
 
 ## Screenshots
 
-Actual application pages rendered in Chrome from `main` at `4a096a7`, with **isolated showcase fixtures**, not live customer data. Both themes use the existing app styles; dark mode was applied by the capture harness because the theme selector is still in PR #60. The dashboard shows current court management, without the pending analytics.
+Actual application pages rendered in Chrome with **isolated showcase fixtures**, not live customer data. The refreshed dashboard captures use `main` at `98d0ce0`, including the real KPI cards, SVG charts and working theme selector. Home, club, matches and the booking GIF retain their original captures at `4a096a7`; their navigation predates the theme selector.
 
 The club has no supplied photographs, so its genuine gallery fallback is shown. Home uses the application's existing illustrative court images. [Capture details and asset sizes](docs/showcase/README.md).
 
@@ -55,9 +45,9 @@ The club has no supplied photographs, so its genuine gallery fallback is shown. 
 
 ### Owner dashboard
 
-| Light                                                                                                                          | Dark                                                                                                                         |
-| ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| ![Owner dashboard in light mode with court prices, active status and weekly opening hours](docs/showcase/dashboard-light.webp) | ![Owner dashboard in dark mode with court prices, active status and weekly opening hours](docs/showcase/dashboard-dark.webp) |
+| Light                                                                                                                                                  | Dark                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![Owner dashboard in light mode with KPI cards, revenue and occupancy charts, court management and theme selector](docs/showcase/dashboard-light.webp) | ![Owner dashboard in dark mode with KPI cards, revenue and occupancy charts, court management and theme selector](docs/showcase/dashboard-dark.webp) |
 
 ## Booking walkthrough
 
@@ -69,19 +59,20 @@ Choose a date → select a slot → review club, court, time and price → confi
 
 ## Tech stack
 
-| Area             | Tools                                                                                              |
-| ---------------- | -------------------------------------------------------------------------------------------------- |
-| App              | Next.js 16 App Router, React 19, strict TypeScript, Server Components and Server Actions           |
-| UI               | Tailwind CSS 4, shadcn/ui with Base UI, Lucide icons, Sonner notifications                         |
-| Forms            | React Hook Form, Zod 4, `zodResolver`                                                              |
-| Data             | PostgreSQL (Neon), Prisma 7, PostgreSQL driver adapter                                             |
-| Authentication   | Better Auth: email/password, optional Google OAuth, server-validated roles                         |
-| Dates and themes | `Intl` with Europe/Belgrade helpers; dark styles and `next-themes` dependency (selector in PR #60) |
-| Quality          | Vitest, ESLint, Prettier with the Tailwind plugin, GitHub Actions CI                               |
+| Area              | Tools                                                                                    |
+| ----------------- | ---------------------------------------------------------------------------------------- |
+| App               | Next.js 16 App Router, React 19, strict TypeScript, Server Components and Server Actions |
+| UI                | Tailwind CSS 4, shadcn/ui with Base UI, Lucide icons, Sonner notifications               |
+| Forms             | React Hook Form, Zod 4, `zodResolver`                                                    |
+| Data              | PostgreSQL (Neon), Prisma 7, PostgreSQL driver adapter                                   |
+| Authentication    | Better Auth: email/password, optional Google OAuth, server-validated roles               |
+| Dates and themes  | `Intl` with Europe/Belgrade helpers; `next-themes` for Light / Dark / System preferences |
+| Charts and emails | Accessible SVG charts; React Email templates and local preview                           |
+| Quality           | Vitest, ESLint, Prettier with the Tailwind plugin, GitHub Actions CI                     |
 
 ## Local setup
 
-Use **Node.js 22+**, npm and a **dedicated development PostgreSQL database**. Neon is the project's hosted database option; pooled and direct connection URLs are supported.
+Use **Node.js 22+**, npm and a **dedicated development PostgreSQL database**. Neon is the project's hosted database option; pooled and direct connection URLs are supported. The database role must be allowed to enable the `btree_gist` extension used by the no-overlap migration. Use a disposable database for the optional seed.
 
 1. Clone the repository and create your environment file **before installing dependencies**. The install runs Prisma client generation, which loads the database configuration.
 
@@ -130,6 +121,8 @@ Use **Node.js 22+**, npm and a **dedicated development PostgreSQL database**. Ne
 
 Open [http://localhost:3000](http://localhost:3000). Browse clubs at `/klubovi`, open matches at `/mecevi`, player bookings at `/igrac/rezervacije` and owner tools at `/dashboard`. Protected pages require the appropriate session/role.
 
+Setup verification (2026-11-16): `npm ci`, Prisma client generation and development-server startup were checked in a fresh clone with Node.js 24.14.1 / npm 11.11.0. No isolated PostgreSQL instance was available, so migrations and seed were **not run**. This is a partial setup check, not a verified database-backed installation. [Verification details](docs/showcase/README.md#local-setup-verification).
+
 ## Demo accounts
 
 These accounts are defined in [`prisma/seed.ts`](prisma/seed.ts) and are available **only after seeding your own development database**. They are not credentials for a public deployment.
@@ -145,17 +138,18 @@ The seed also creates `igrac3@servis.test` and `igrac4@servis.test` with the sam
 
 ## Development checks
 
-| Command                                   | Purpose                                              |
-| ----------------------------------------- | ---------------------------------------------------- |
-| `npm run dev`                             | Start the development server                         |
-| `npm run build`                           | Build for production                                 |
-| `npm start`                               | Serve an existing production build                   |
-| `npm run lint`                            | Run ESLint                                           |
-| `npm run typecheck`                       | Generate Next.js route types and check TypeScript    |
-| `npm test`                                | Run the Vitest suite                                 |
-| `npm run format` / `npm run format:check` | Write/check Prettier formatting                      |
-| `npm run db:seed`                         | Reset test data in a disposable development database |
-| `npx prisma studio`                       | Browse the configured database                       |
+| Command                                   | Purpose                                               |
+| ----------------------------------------- | ----------------------------------------------------- |
+| `npm run dev`                             | Start the development server                          |
+| `npm run email:dev`                       | Preview confirmation/cancellation emails at port 3001 |
+| `npm run build`                           | Build for production                                  |
+| `npm start`                               | Serve an existing production build                    |
+| `npm run lint`                            | Run ESLint                                            |
+| `npm run typecheck`                       | Generate Next.js route types and check TypeScript     |
+| `npm test`                                | Run the Vitest suite                                  |
+| `npm run format` / `npm run format:check` | Write/check Prettier formatting                       |
+| `npm run db:seed`                         | Reset test data in a disposable development database  |
+| `npx prisma studio`                       | Browse the configured database                        |
 
 CI runs lint, typecheck, tests and a production build on pull requests to `main`. Tests use mocks where appropriate; a green suite does not establish that Google OAuth, email delivery or booking against a deployed database has been integration-tested.
 
@@ -165,7 +159,7 @@ Tasks are tracked in [GitHub issues](https://github.com/filipvicentijevic99/serv
 
 ## How we used AI
 
-We used **ChatGPT and Codex** to turn issue requirements into implementation steps, inspect existing code, build UI around established backend contracts, write focused tests, investigate failures and prepare documentation. Codex also helped with Git conflict diagnosis and browser checks. AI suggestions were inputs to the team's work, not independent evidence that a feature was complete.
+**Filip used Claude (Claude Code) for backend, architecture and code review. Tijana used ChatGPT and Codex for frontend work.** ChatGPT and Codex helped turn UI requirements into implementation steps, inspect existing code, build UI around established backend contracts, write focused tests, investigate failures and prepare frontend documentation. Codex also helped with Git conflict diagnosis and browser checks. AI suggestions were inputs to the team's work, not independent evidence that a feature was complete.
 
 **People made the decisions:** Filip defined backend contracts and architecture, approved dependency choices and reviewed pull requests. Tijana directed frontend scope and UI work, checked the app manually and controlled when changes were committed or pushed. Review feedback led to follow-up fixes, including preserving a participant's ability to leave a full match and correcting error-boundary props.
 
