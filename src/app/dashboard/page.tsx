@@ -8,6 +8,13 @@ import {
   updateOpeningHours,
 } from "@/server/actions/dashboard";
 import { CourtManagement } from "@/components/dashboard/court-management";
+import { ClubPhotos } from "@/components/dashboard/club-photos";
+import {
+  addClubImage,
+  getClubImageUploadSignature,
+  removeClubImage,
+} from "@/server/actions/club-images";
+import { cloudinaryConfigFromEnv } from "@/lib/club-images";
 import { OpeningHoursForm } from "@/components/dashboard/opening-hours-form";
 import { ClubSwitcher } from "@/components/dashboard/club-switcher";
 import { Building2 } from "lucide-react";
@@ -30,7 +37,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
         <p className="text-sm font-medium text-primary">Za vlasnike klubova</p>
         <h1 className="text-3xl font-semibold tracking-tight">Upravljanje klubom</h1>
         <p className="text-muted-foreground">
-          Uredi terene, cene i nedeljno radno vreme svog kluba.
+          Uredi fotografije, terene, cene i nedeljno radno vreme svog kluba.
         </p>
       </header>
       <ClubSwitcher clubs={clubs} selectedId={clubId} />
@@ -61,6 +68,13 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
           <Suspense fallback={<AnalyticsLoading />}>
             <ClubAnalytics clubId={club.id} />
           </Suspense>
+          <ClubPhotos
+            clubId={club.id}
+            clubName={club.name}
+            images={club.images}
+            uploadEnabled={cloudinaryConfigFromEnv(process.env) !== null}
+            actions={{ getClubImageUploadSignature, addClubImage, removeClubImage }}
+          />
           <CourtManagement club={club} actions={{ createCourt, updateCourt, deleteCourt }} />
           <OpeningHoursForm clubId={club.id} week={club.week} saveAction={updateOpeningHours} />
         </div>

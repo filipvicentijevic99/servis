@@ -48,3 +48,7 @@ export type CourtInput = z.input<typeof courtSchema>;
 export type CreateCourtInput = z.input<typeof createCourtSchema>;
 export type UpdateCourtInput = z.input<typeof updateCourtSchema>;
 export type OpeningHoursInput = z.input<typeof openingHoursSchema>;
+
+export const clubIdSchema = z.object({ clubId: z.string().min(1) });
+export const clubImageSchema = z.object({ clubId: z.string().min(1), url: z.url() });
+export type ClubImageInput = z.infer<typeof clubImageSchema>;

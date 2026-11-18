@@ -14,7 +14,6 @@ export function ClubImage({ src, name }: { src: string | null; name: string }) {
           src={src}
           alt={`Teniski tereni kluba ${name}`}
           fill
-          unoptimized
           sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
           className="object-cover"
           onError={() => setFailedSource(src)}

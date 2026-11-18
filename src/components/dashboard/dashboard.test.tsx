@@ -15,6 +15,11 @@ vi.mock("@/server/actions/dashboard", () => ({
   deleteCourt: vi.fn(),
   updateOpeningHours: vi.fn(),
 }));
+vi.mock("@/server/actions/club-images", () => ({
+  getClubImageUploadSignature: vi.fn(),
+  addClubImage: vi.fn(),
+  removeClubImage: vi.fn(),
+}));
 vi.mock("./club-analytics", () => ({
   ClubAnalytics: ({ clubId }: { clubId: string }) => <div data-analytics-club={clubId} />,
 }));
@@ -30,6 +35,7 @@ const club: OwnerClub = {
   slug: "test-klub",
   city: "Beograd",
   address: "Adresa 1",
+  images: [],
   openingHours: [{ dayOfWeek: 1, openTime: "08:00", closeTime: "22:00" }],
   courts: [
     {
