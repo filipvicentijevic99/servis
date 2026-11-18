@@ -27,6 +27,7 @@ Full-stack app: clubs publish their courts and opening hours, players book slots
 - `npx prisma migrate dev --name <name>`, then `npx prisma generate`: after changing the schema (Prisma 7 does not regenerate the client after a migration)
 - `npm run db:seed`: reset and fill the database with test data (test accounts use the password `lozinka123`)
 - `npx prisma studio`: browse the database
+- Deploy: Vercel runs `npm run vercel-build` (applies pending migrations with `prisma migrate deploy`, then `next build`)
 
 ## Structure
 
