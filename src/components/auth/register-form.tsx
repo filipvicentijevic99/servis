@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthField } from "@/components/auth/auth-field";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { Button } from "@/components/ui/button";
+import { useSession } from "@/lib/auth-client";
 import { ROLES, ROLE_LABELS } from "@/lib/roles";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { registerAction } from "@/server/actions/auth";
@@ -19,6 +20,8 @@ type RegisterFormProps = {
 
 export function RegisterForm({ googleEnabled, callbackUrl }: RegisterFormProps) {
   const router = useRouter();
+  // The server action sets the cookie, so the client session (navbar) must be refetched.
+  const { refetch: refetchSession } = useSession();
   const {
     register,
     handleSubmit,
@@ -42,6 +45,7 @@ export function RegisterForm({ googleEnabled, callbackUrl }: RegisterFormProps) 
         setError("root", { message: result.error });
         return;
       }
+      await refetchSession();
       router.replace(result.redirectTo);
       router.refresh();
     } catch {
