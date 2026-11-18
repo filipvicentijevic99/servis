@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { sendBookingEmail } from "@/server/email/booking-emails";
 import { buildSlots } from "@/lib/availability";
 import { canCancel, isWithinBookingWindow } from "@/lib/booking-rules";
 import { belgradeToUtc, dayOfWeek, todayInBelgrade } from "@/lib/time";
@@ -105,6 +107,8 @@ export async function createBooking(input: CreateBookingInput): Promise<BookingA
 
     revalidatePath("/igrac/rezervacije");
     revalidatePath(`/klub/${court.club.slug}`);
+    // Sent after the response, so the player doesn't wait for the email API.
+    after(() => sendBookingEmail(booking.id, "confirmed"));
     return { ok: true, bookingId: booking.id };
   } catch (error) {
     if (error instanceof SlotTakenError) return { ok: false, error: SLOT_TAKEN };
@@ -154,5 +158,6 @@ export async function cancelBooking(input: CancelBookingInput): Promise<BookingA
 
   revalidatePath("/igrac/rezervacije");
   revalidatePath(`/klub/${booking.court.club.slug}`);
+  after(() => sendBookingEmail(bookingId, "cancelled"));
   return { ok: true, bookingId };
 }
