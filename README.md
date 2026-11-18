@@ -17,7 +17,7 @@ The app UI and URLs use Serbian (Latin script). Code, documentation and Git hist
 - **Manage a club:** owners can switch between their clubs, add or edit courts, set prices and active status, and configure all seven days of opening hours. Courts with booking history can be deactivated instead of deleted. The dashboard includes monthly revenue and booking KPIs, average occupancy, a 30-day revenue line chart and occupancy bars by court, with accessible data tables. Cancelled bookings are excluded from revenue; occupancy uses active courts and their current opening hours.
 - **Sign in:** email/password authentication, optional Google sign-in, player/owner roles and server-side access checks.
 - **Use on mobile:** responsive layouts, a persistent Light / Dark / System selector, loading skeletons, empty states and global error/404 recovery.
-- **Preview booking emails:** reusable confirmation/cancellation templates with a local React Email preview. Email delivery is not implemented by these templates.
+- **Booking emails:** confirmation and cancellation emails sent through Resend after the response (`after()`), built from React Email templates with a local preview. A failed email never blocks a booking.
 
 ## Screenshots
 
@@ -67,7 +67,7 @@ Choose a date → select a slot → review club, court, time and price → confi
 | Data              | PostgreSQL (Neon), Prisma 7, PostgreSQL driver adapter                                   |
 | Authentication    | Better Auth: email/password, optional Google OAuth, server-validated roles               |
 | Dates and themes  | `Intl` with Europe/Belgrade helpers; `next-themes` for Light / Dark / System preferences |
-| Charts and emails | Accessible SVG charts; React Email templates and local preview                           |
+| Charts and emails | Accessible SVG charts; React Email templates sent via the Resend API                     |
 | Quality           | Vitest, ESLint, Prettier with the Tailwind plugin, GitHub Actions CI                     |
 
 ## Local setup
@@ -93,6 +93,7 @@ Use **Node.js 22+**, npm and a **dedicated development PostgreSQL database**. Ne
    | `BETTER_AUTH_SECRET`                       | A private random secret; generate with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"` |
    | `BETTER_AUTH_URL`                          | `http://localhost:3000` locally                                                                                        |
    | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Optional; both are required to enable Google sign-in                                                                   |
+   | `RESEND_API_KEY`, `EMAIL_FROM`             | Optional; booking emails via Resend. Without a key they are skipped. The default test sender only reaches your own Resend address |
 
    For local Google OAuth, register this authorized redirect URI:
 
