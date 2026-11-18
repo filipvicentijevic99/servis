@@ -36,6 +36,7 @@ export async function getOwnerClub(clubId: string) {
       slug: true,
       city: true,
       address: true,
+      images: true,
       courts: {
         orderBy: { name: "asc" },
         select: {

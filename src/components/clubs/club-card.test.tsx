@@ -36,9 +36,10 @@ describe("club cards", () => {
   });
 
   it("renders a supplied photo with descriptive alternative text", () => {
-    const image = "https://example.test/court.jpg";
+    const image = "https://res.cloudinary.com/demo/image/upload/v1/servis/clubs/c1/court.jpg";
     const html = renderToStaticMarkup(<ClubCard club={{ ...club, image }} />);
-    expect(html).toContain(`src="${image}"`);
+    // Club photos go through next/image optimization, so the URL is encoded in src.
+    expect(html).toContain(encodeURIComponent(image));
     expect(html).toContain('alt="Teniski tereni kluba Test klub"');
     expect(html).not.toContain("Fotografija nije dostupna");
   });

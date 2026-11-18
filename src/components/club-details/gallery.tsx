@@ -36,7 +36,6 @@ export function ClubGallery({ images, name }: { images: string[]; name: string }
             src={src}
             alt={`${name} — fotografija ${index + 1}`}
             fill
-            unoptimized
             sizes="(max-width: 1152px) 100vw, 1152px"
             className="object-cover"
             onError={() => setFailed((current) => [...current, src])}
