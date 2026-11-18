@@ -2,7 +2,7 @@
 
 Find a tennis court, book a slot and find someone to play with. Servis connects players with tennis clubs in Serbia and gives club owners tools to manage their courts.
 
-**Live demo: Coming soon.** No verified public deployment is available for this showcase.
+**Live demo: [servis-teal.vercel.app](https://servis-teal.vercel.app)** (sign in with one of the [demo accounts](#demo-accounts)).
 
 [Screenshots](#screenshots) · [Booking walkthrough](#booking-walkthrough) · [Local setup](#local-setup) · [Demo accounts](#demo-accounts) · [How we used AI](#how-we-used-ai)
 
@@ -125,7 +125,7 @@ Setup verification (2026-11-16): `npm ci`, Prisma client generation and developm
 
 ## Demo accounts
 
-These accounts are defined in [`prisma/seed.ts`](prisma/seed.ts) and are available **only after seeding your own development database**. They are not credentials for a public deployment.
+These accounts are defined in [`prisma/seed.ts`](prisma/seed.ts). They work on the [live demo](https://servis-teal.vercel.app) and in your own database after `npm run db:seed`. They hold demo data only, so feel free to book and cancel.
 
 | Role       | Email                  | Password     |
 | ---------- | ---------------------- | ------------ |
